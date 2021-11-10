@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+}
+
+group 'de.hypercdn.commons'
+version '0.0.1.' + System.getenv("build_number")
+sourceCompatibility = 17
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    maven {
+        name 'hypercdn-maven2'
+        url 'https://nexus.hypercdn.de/repository/hypercdn-maven'
+    }
+    mavenCentral()
+}
+
+dependencies {
+}
+
+test {
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'hours'
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'hours'
+}
+
+shadowJar {
+    archiveClassifier.set("")
+}
+
+publishing {
+    repositories {
+        maven {
+            credentials {
+                username findProperty("nexusu") as String
+                password findProperty("nexusp") as String
+            }
+            url "https://nexus.hypercdn.de/repository/hypercdn-maven/"
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            artifact(tasks["shadowJar"])
+            pom {
+                name = 'Commons'
+                description = ''
+                url = 'https://github.com/HyperCDN/Commons'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/HyperCDN/Commons'
+                    developerConnection = 'scm:git:ssh:git@github.com:HyperCDN/Commons'
+                    url = 'https://github.com/HyperCDN/Commons'
+                }
+            }
+        }
+    }
+}
