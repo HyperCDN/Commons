@@ -1,6 +1,6 @@
-package de.hypercdn.commons.imp.concurrency.lock;
+package de.hypercdn.commons.imp.lock;
 
-import de.hypercdn.commons.api.concurrency.lock.LockContainer;
+import de.hypercdn.commons.api.lock.LockContainer;
 
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;

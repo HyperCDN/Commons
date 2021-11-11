@@ -1,4 +1,4 @@
-package de.hypercdn.commons.api.concurrency.lock;
+package de.hypercdn.commons.api.lock;
 
 import de.hypercdn.commons.api.wrap.Wrap;
 

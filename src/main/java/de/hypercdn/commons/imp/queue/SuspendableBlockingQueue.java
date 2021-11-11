@@ -1,6 +1,6 @@
-package de.hypercdn.commons.imp.concurrency.queue;
+package de.hypercdn.commons.imp.queue;
 
-import de.hypercdn.commons.api.concurrency.queue.SimpleQueue;
+import de.hypercdn.commons.api.queue.SimpleQueue;
 import de.hypercdn.commons.api.properties.misc.Suspendable;
 
 import java.util.Objects;

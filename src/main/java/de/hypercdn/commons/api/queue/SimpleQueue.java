@@ -1,4 +1,4 @@
-package de.hypercdn.commons.api.concurrency.queue;
+package de.hypercdn.commons.api.queue;
 
 import java.util.Queue;
 
