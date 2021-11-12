@@ -111,12 +111,4 @@ public interface ExecutionAction<IN, OUT> {
         return new ChainedExecutionAction<>(this, next);
     }
 
-
-    static void test(){
-
-        var upperA = new SupplierExecutionAction<>(() -> "HI");
-        var lowerA = upperA.then(new GenericExecutionAction<String, String>().setActionFunction(String::toLowerCase));
-        System.out.println(lowerA.execute());
-    }
-
 }
