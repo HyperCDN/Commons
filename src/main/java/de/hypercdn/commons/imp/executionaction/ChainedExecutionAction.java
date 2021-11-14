@@ -1,6 +1,8 @@
 package de.hypercdn.commons.imp.executionaction;
 
 import de.hypercdn.commons.api.executionaction.ExecutionAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -14,6 +16,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
     private final ExecutionAction<IN, TRANS> firstExecutionAction;
     private final ExecutionAction<TRANS, OUT> secondExecutionAction;
     private volatile long lastExecutionDuration = -1L;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public ChainedExecutionAction(ExecutionAction<IN, TRANS> firstExecutionAction, ExecutionAction<TRANS, OUT> secondExecutionAction){
         this.firstExecutionAction = firstExecutionAction;
@@ -77,10 +80,12 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 
     @Override
     public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer) {
+        logger.debug("Started executing "+getClass().getSimpleName()+"#"+hashCode());
         var startTime = System.nanoTime();
         try {
             Consumer<Throwable> throwableConsumer = (throwable) -> {
                 lastExecutionDuration = (System.nanoTime() - startTime);
+                logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
                 if(exceptionConsumer != null){
                     exceptionConsumer.accept(throwable);
                 }
@@ -88,6 +93,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
             firstExecutionAction.queue(firstResult -> {
                 secondExecutionAction.queue(firstResult, secondResult -> {
                     lastExecutionDuration = (System.nanoTime() - startTime);
+                    logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
                     if(successConsumer != null){
                         successConsumer.accept(secondResult);
                     }
@@ -95,6 +101,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
             }, throwableConsumer);
         }catch (Throwable t) {
             lastExecutionDuration = (System.nanoTime() - startTime);
+            logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
             if(t instanceof Error){
                 throw t;
             }
@@ -106,30 +113,20 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 
     @Override
     public OUT execute(IN input) throws ExecutionException {
+        logger.debug("Started executing "+getClass().getSimpleName()+"#"+hashCode());
         var startTime = System.nanoTime();
         try {
             var result = secondExecutionAction.execute(firstExecutionAction.execute());
             lastExecutionDuration = (System.nanoTime() - startTime);
+            logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
             return result;
         }catch (Throwable t) {
             lastExecutionDuration = (System.nanoTime() - startTime);
+            logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
             if (t instanceof Error) {
                 throw t;
             }
             throw new ExecutionException(t);
         }
-    }
-
-    public static void main(String...args){
-        var start = System.nanoTime();
-        for(var i = 0; i < 1000000; i ++){
-            System.nanoTime();
-        }
-        System.out.println((System.nanoTime() - start) / 1000000);
-        start = System.nanoTime();
-        for(var i = 0; i < 1000000; i ++){
-            System.currentTimeMillis();
-        }
-        System.out.println((System.nanoTime() - start) / 1000000);
     }
 }

@@ -2,6 +2,8 @@ package de.hypercdn.commons.imp.executionaction;
 
 import de.hypercdn.commons.api.executionaction.ExecutionAction;
 import de.hypercdn.commons.imp.lock.LockUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -17,6 +19,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
     private final BiFunction<? super OUT1, ? super  OUT2, ? extends MAPPED> accumulator;
     private volatile boolean failed = false;
     private volatile long lastExecutionDuration = -1L;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public CombinedExecutionAction(ExecutionAction<?, OUT1> executionAction1, ExecutionAction<?, OUT2> executionAction2, BiFunction<? super OUT1, ? super  OUT2, ? extends MAPPED> accumulator) {
         this.executionAction1 = executionAction1;
@@ -80,6 +83,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 
     @Override
     public void queue(Void input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer) {
+        logger.debug("Started executing "+getClass().getSimpleName()+"#"+hashCode());
         var startTime = System.nanoTime();
         var lock = new ReentrantLock();
         var done1 = new AtomicBoolean(false);
@@ -91,6 +95,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
             if(failed) return;
             failed = true;
             lastExecutionDuration = (System.nanoTime() - startTime);
+            logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
             if(exceptionConsumer != null){
                 exceptionConsumer.accept(throwable);
             }
@@ -102,6 +107,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
                 result1.set(result);
                 if(done2.get()){
                     lastExecutionDuration = (System.nanoTime() - startTime);
+                    logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
                     if(successConsumer != null)
                         successConsumer.accept(accumulator.apply(result1.get(), result2.get()));
                 }
@@ -115,6 +121,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
                 result2.set(result);
                 if(done1.get()){
                     lastExecutionDuration = (System.nanoTime() - startTime);
+                    logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
                     if(successConsumer != null)
                         successConsumer.accept(accumulator.apply(result1.get(), result2.get()));
                 }
@@ -126,15 +133,18 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 
     @Override
     public MAPPED execute(Void input) throws ExecutionException {
+        logger.debug("Started executing "+getClass().getSimpleName()+"#"+hashCode());
         var startTime = System.nanoTime();
         try {
             var a = executionAction1.execute();
             var b = executionAction2.execute();
             var result = accumulator.apply(a, b);
             lastExecutionDuration = (System.nanoTime() - startTime);
+            logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
             return result;
         }catch (Throwable t){
             lastExecutionDuration = (System.nanoTime() - startTime);
+            logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
             if (t instanceof Error){
                 throw t;
             }

@@ -1,6 +1,8 @@
 package de.hypercdn.commons.imp.executionaction;
 
 import de.hypercdn.commons.api.executionaction.ExecutionAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -17,6 +19,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
     private Function<IN, OUT> actionFunction = (unused) -> null;
     private BooleanSupplier check = () -> true;
     private volatile long lastExecutionDuration = -1L;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public GenericExecutionAction(){}
 
@@ -82,6 +85,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 
     @Override
     public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer) {
+        logger.debug("Started executing "+getClass().getSimpleName()+"#"+hashCode());
         var startTime = System.nanoTime();
         try {
             executor.execute(() -> {
@@ -94,11 +98,13 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
                     }
                     var result = actionFunction.apply(input);
                     lastExecutionDuration = (System.nanoTime() - startTime);
+                    logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
                     if(successConsumer != null){
                         successConsumer.accept(result);
                     }
                 }catch (Throwable t){
                     lastExecutionDuration = (System.nanoTime() - startTime);
+                    logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
                     if(t instanceof Error){
                         throw t;
                     }
@@ -109,6 +115,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
             });
         }catch (Throwable t){
             lastExecutionDuration = (System.nanoTime() - startTime);
+            logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
             if(t instanceof Error){
                 throw t;
             }
@@ -121,9 +128,11 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
     @Override
     public OUT execute(IN input) {
         try {
+            logger.debug("Started executing "+getClass().getSimpleName()+"#"+hashCode());
             var startTime = System.nanoTime();
             var result = actionFunction.apply(input);
             lastExecutionDuration = (System.nanoTime() - startTime);
+            logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
             return result;
         }catch (Throwable t){
             if(t instanceof Error){
