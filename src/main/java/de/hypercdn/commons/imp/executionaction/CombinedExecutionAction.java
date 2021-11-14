@@ -20,6 +20,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
     private volatile boolean failed = false;
     private volatile long lastExecutionDuration = -1L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final ExecutionStack executionStack = new ExecutionStack();
 
     public CombinedExecutionAction(ExecutionAction<?, OUT1> executionAction1, ExecutionAction<?, OUT2> executionAction2, BiFunction<? super OUT1, ? super  OUT2, ? extends MAPPED> accumulator) {
         this.executionAction1 = executionAction1;
@@ -79,6 +80,17 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
     @Override
     public float lastExecutionDuration() {
         return lastExecutionDuration / 1_000_000F;
+    }
+
+    @Override
+    public ExecutionStack getExecutionStack() {
+        return executionStack;
+    }
+
+    @Override
+    public ExecutionAction<Void, MAPPED> passExecutionStack(ExecutionStack executionStack) {
+        this.executionStack.push(executionStack);
+        return this;
     }
 
     @Override

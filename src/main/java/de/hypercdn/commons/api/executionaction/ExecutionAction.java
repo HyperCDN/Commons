@@ -1,9 +1,6 @@
 package de.hypercdn.commons.api.executionaction;
 
-import de.hypercdn.commons.imp.executionaction.ChainedExecutionAction;
-import de.hypercdn.commons.imp.executionaction.CombinedExecutionAction;
-import de.hypercdn.commons.imp.executionaction.ExecutionException;
-import de.hypercdn.commons.imp.executionaction.MapExecutionAction;
+import de.hypercdn.commons.imp.executionaction.*;
 
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -36,6 +33,10 @@ public interface ExecutionAction<IN, OUT> {
     default float lastExecutionDuration(){
         return -1F;
     }
+
+    ExecutionStack getExecutionStack();
+
+    ExecutionAction<IN, OUT> passExecutionStack(ExecutionStack executionStack);
 
     default void queue() {
         var supplier = getInputSupplier();

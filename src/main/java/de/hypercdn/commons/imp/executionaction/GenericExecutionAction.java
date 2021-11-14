@@ -1,6 +1,7 @@
 package de.hypercdn.commons.imp.executionaction;
 
 import de.hypercdn.commons.api.executionaction.ExecutionAction;
+import de.hypercdn.commons.util.StackTraceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
     private BooleanSupplier check = () -> true;
     private volatile long lastExecutionDuration = -1L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final ExecutionStack executionStack = new ExecutionStack();
 
     public GenericExecutionAction(){}
 
@@ -84,11 +86,25 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
     }
 
     @Override
+    public ExecutionStack getExecutionStack() {
+        return executionStack;
+    }
+
+    @Override
+    public ExecutionAction<IN, OUT> passExecutionStack(ExecutionStack executionStack) {
+        this.executionStack.push(executionStack);
+        return this;
+    }
+
+    @Override
     public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer) {
         logger.debug("Started executing "+getClass().getSimpleName()+"#"+hashCode());
         var startTime = System.nanoTime();
         try {
+            executionStack.setCurrentStack(StackTraceUtil.currentStacktrace());
+            executionStack.push(executionStack);
             executor.execute(() -> {
+                executionStack.setCurrentStack(StackTraceUtil.currentStacktrace());
                 try {
                     if(!getCheck().getAsBoolean()){
                         if(successConsumer != null){
@@ -105,6 +121,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
                 }catch (Throwable t){
                     lastExecutionDuration = (System.nanoTime() - startTime);
                     logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
+                    t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
                     if(t instanceof Error){
                         throw t;
                     }
@@ -116,6 +133,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
         }catch (Throwable t){
             lastExecutionDuration = (System.nanoTime() - startTime);
             logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
+            t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
             if(t instanceof Error){
                 throw t;
             }
@@ -135,6 +153,8 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
             logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
             return result;
         }catch (Throwable t){
+            logger.debug("Finished executing "+getClass().getSimpleName()+"#"+hashCode()+" after "+lastExecutionDuration()+" ms");
+            t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
             if(t instanceof Error){
                 throw t;
             }

@@ -68,6 +68,17 @@ public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction<IN, 
     }
 
     @Override
+    public ExecutionStack getExecutionStack() {
+        return originalAction.getExecutionStack();
+    }
+
+    @Override
+    public ExecutionAction<IN, MAPPED> passExecutionStack(ExecutionStack executionStack) {
+        originalAction.passExecutionStack(executionStack);
+        return this;
+    }
+
+    @Override
     public void queue(IN input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer) {
         originalAction.queue(result -> {
             var applied = mapping.apply(result);

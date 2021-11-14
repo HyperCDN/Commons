@@ -17,6 +17,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
     private final ExecutionAction<TRANS, OUT> secondExecutionAction;
     private volatile long lastExecutionDuration = -1L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final ExecutionStack executionStack = new ExecutionStack();
 
     public ChainedExecutionAction(ExecutionAction<IN, TRANS> firstExecutionAction, ExecutionAction<TRANS, OUT> secondExecutionAction){
         this.firstExecutionAction = firstExecutionAction;
@@ -71,6 +72,17 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
     @Override
     public ExecutionAction<IN, OUT> setActionFunction(Function<IN, OUT> actionFunction) {
         throw new UnsupportedOperationException("Not allowed on chained action");
+    }
+
+    @Override
+    public ExecutionStack getExecutionStack() {
+        return executionStack;
+    }
+
+    @Override
+    public ExecutionAction<IN, OUT> passExecutionStack(ExecutionStack executionStack) {
+        this.executionStack.push(executionStack);
+        return this;
     }
 
     @Override
