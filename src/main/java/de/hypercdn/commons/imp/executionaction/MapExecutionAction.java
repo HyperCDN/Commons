@@ -59,7 +59,7 @@ public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction<IN, 
 
     @Override
     public Function<IN, MAPPED> getActionFunction() {
-        return in -> mapping.apply(originalAction.getActionFunction().apply(in));
+        throw new UnsupportedOperationException("Not allowed on mapped action");
     }
 
     @Override
