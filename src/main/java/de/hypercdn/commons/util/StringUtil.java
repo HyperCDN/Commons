@@ -3,10 +3,21 @@ package de.hypercdn.commons.util;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type String util.
+ */
 public class StringUtil{
 
 	private StringUtil(){}
 
+	/**
+	 * Slice list.
+	 *
+	 * @param string    the string
+	 * @param sliceSize the slice size
+	 *
+	 * @return the list
+	 */
 	public static List<String> slice(String string, int sliceSize){
 		var slices = new ArrayList<String>();
 		for(int i = 0; i < string.length() - (sliceSize - 1); i++){
@@ -15,6 +26,15 @@ public class StringUtil{
 		return slices;
 	}
 
+	/**
+	 * Hash bit array 64.
+	 *
+	 * @param string    the string
+	 * @param nGramSize the n gram size
+	 * @param words     the words
+	 *
+	 * @return the bit array 64
+	 */
 	public static BitArray64 hash(String string, int nGramSize, int words){
 		if(string == null){
 			return null;

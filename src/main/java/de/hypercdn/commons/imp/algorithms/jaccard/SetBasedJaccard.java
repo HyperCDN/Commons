@@ -5,6 +5,9 @@ import de.hypercdn.commons.util.StringUtil;
 
 import java.util.HashSet;
 
+/**
+ * The type Set based jaccard.
+ */
 public class SetBasedJaccard implements StringSimilarity{
 
 	private static final SetBasedJaccard instance = new SetBasedJaccard();

@@ -11,6 +11,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * The type Chained execution action.
+ *
+ * @param <IN>    the type parameter
+ * @param <TRANS> the type parameter
+ * @param <OUT>   the type parameter
+ */
 public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<IN, OUT>{
 
 	private final ExecutionAction<IN, TRANS> firstExecutionAction;
@@ -19,6 +26,12 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 	private final ExecutionStack executionStack = new ExecutionStack();
 	private volatile long lastExecutionDuration = -1L;
 
+	/**
+	 * Instantiates a new Chained execution action.
+	 *
+	 * @param firstExecutionAction  the first execution action
+	 * @param secondExecutionAction the second execution action
+	 */
 	public ChainedExecutionAction(ExecutionAction<IN, TRANS> firstExecutionAction, ExecutionAction<TRANS, OUT> secondExecutionAction){
 		this.firstExecutionAction = firstExecutionAction;
 		this.secondExecutionAction = secondExecutionAction;

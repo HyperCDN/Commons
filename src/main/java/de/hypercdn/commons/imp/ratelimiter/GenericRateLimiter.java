@@ -5,6 +5,9 @@ import de.hypercdn.commons.api.ratelimiter.RateLimiter;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The type Generic rate limiter.
+ */
 public class GenericRateLimiter implements RateLimiter{
 
 	private final TimeUnit refillUnit;
@@ -15,6 +18,12 @@ public class GenericRateLimiter implements RateLimiter{
 	private int underflowFactor = 2;
 	private long nsPerUsage;
 
+	/**
+	 * Instantiates a new Generic rate limiter.
+	 *
+	 * @param refillUnit     the refill unit
+	 * @param refillInterval the refill interval
+	 */
 	public GenericRateLimiter(TimeUnit refillUnit, long refillInterval){
 		Objects.requireNonNull(refillUnit);
 		this.refillUnit = refillUnit;

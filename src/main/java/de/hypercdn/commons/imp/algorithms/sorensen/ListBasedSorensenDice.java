@@ -3,6 +3,9 @@ package de.hypercdn.commons.imp.algorithms.sorensen;
 import de.hypercdn.commons.api.algorithms.StringSimilarity;
 import de.hypercdn.commons.util.StringUtil;
 
+/**
+ * The type List based sorensen dice.
+ */
 public class ListBasedSorensenDice implements StringSimilarity{
 
 	private static final ListBasedSorensenDice instance = new ListBasedSorensenDice();

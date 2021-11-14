@@ -6,11 +6,22 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+/**
+ * The type Generic provider.
+ *
+ * @param <I> the type parameter
+ * @param <O> the type parameter
+ */
 public class GenericProvider<I, O> implements Provider<I, O>{
 
 	private final Function<I, O> supplier;
 	private final ConcurrentHashMap<I, O> elements = new ConcurrentHashMap<>();
 
+	/**
+	 * Instantiates a new Generic provider.
+	 *
+	 * @param supplier the supplier
+	 */
 	public GenericProvider(Function<I, O> supplier){
 		Objects.requireNonNull(supplier);
 		this.supplier = supplier;
