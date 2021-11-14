@@ -1,6 +1,5 @@
 package de.hypercdn.commons.api.executionaction;
 
-import de.hypercdn.commons.api.properties.logging.Loggable;
 import de.hypercdn.commons.imp.executionaction.*;
 
 import java.util.*;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
  * @param <IN>  the type parameter
  * @param <OUT> the type parameter
  */
-public interface ExecutionAction<IN, OUT> extends Loggable{
+public interface ExecutionAction<IN, OUT>{
 
 	Consumer<Throwable> DEFAULT_THROWABLE_CONSUMER = Throwable::printStackTrace;
 
