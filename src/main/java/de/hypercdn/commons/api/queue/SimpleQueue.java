@@ -2,16 +2,16 @@ package de.hypercdn.commons.api.queue;
 
 import java.util.Queue;
 
-public interface SimpleQueue<T> {
+public interface SimpleQueue<T>{
 
-    T get() throws InterruptedException;
+	T get() throws InterruptedException;
 
-    void put(T t);
+	void put(T t);
 
-    int size();
+	int size();
 
-    void clear();
+	void clear();
 
-    Queue<T> getWrappedQueue();
+	Queue<T> getWrappedQueue();
 
 }

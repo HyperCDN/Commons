@@ -4,26 +4,26 @@ import de.hypercdn.commons.imp.ratelimiter.RateLimiterException;
 
 import java.util.concurrent.TimeUnit;
 
-public interface RateLimiter {
+public interface RateLimiter{
 
-    TimeUnit getRefillUnit();
+	TimeUnit getRefillUnit();
 
-    long getRefillInterval();
+	long getRefillInterval();
 
-    int getUnderflowFactor();
+	int getUnderflowFactor();
 
-    RateLimiter setUnderflowFactor(int factor);
+	RateLimiter setUnderflowFactor(int factor);
 
-    long getMaximum();
+	long getMaximum();
 
-    RateLimiter setMaximum(long max);
+	RateLimiter setMaximum(long max);
 
-    long getRemaining();
+	long getRemaining();
 
-    long getRefillTimestamp();
+	long getRefillTimestamp();
 
-    void drainBy(long amount) throws RateLimiterException;
+	void drainBy(long amount) throws RateLimiterException;
 
-    boolean tryDrainBy(long amount);
+	boolean tryDrainBy(long amount);
 
 }

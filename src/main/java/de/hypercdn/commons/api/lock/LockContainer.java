@@ -4,4 +4,4 @@ import de.hypercdn.commons.api.wrap.Wrap;
 
 import java.util.concurrent.locks.Lock;
 
-public interface LockContainer<T extends Lock> extends Wrap<T> {}
+public interface LockContainer<T extends Lock> extends Wrap<T>{}

@@ -8,114 +8,114 @@ import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-public interface ExecutionAction<IN, OUT> {
+public interface ExecutionAction<IN, OUT>{
 
-    ExecutionAction<IN, OUT> setCheck(BooleanSupplier check);
+	static <U> ExecutionAction<?, List<U>> allOf(ExecutionAction<?, U> first, ExecutionAction<?, U>... others){
+		List<ExecutionAction<?, U>> list = new ArrayList<>(){{
+			add(first);
+		}};
+		Collections.addAll(list, others);
+		return allOf(list);
+	}
 
-    BooleanSupplier getCheck();
+	static <U> ExecutionAction<?, List<U>> allOf(List<ExecutionAction<?, U>> list){
+		return accumulate(list, Collectors.toList());
+	}
 
-    default ExecutionAction<IN, OUT> addCheck(BooleanSupplier check) {
-        return setCheck(() -> (getCheck() == null || getCheck().getAsBoolean()) && check.getAsBoolean());
-    }
+	static <E, A, O> ExecutionAction<?, O> accumulate(Collection<? extends ExecutionAction<?, ? extends E>> actions, Collector<? super E, A, ? extends O> collector){
+		Supplier<A> accumulator = collector.supplier();
+		BiConsumer<A, ? super E> add = collector.accumulator();
+		Function<A, ? extends O> output = collector.finisher();
 
-    ExecutionAction<IN, OUT> setExecutor(Executor executor);
+		var actionLHS = new LinkedHashSet<>(actions);
+		Iterator<? extends ExecutionAction<?, ? extends E>> iterator = actionLHS.iterator();
+		ExecutionAction<?, A> result = iterator.next().map(it -> {
+			A list = accumulator.get();
+			add.accept(list, it);
+			return list;
+		});
 
-    Executor getExecutor();
+		while(iterator.hasNext()){
+			ExecutionAction<?, ? extends E> next = iterator.next();
+			result = result.and(next, (list, b) -> {
+				add.accept(list, b);
+				return list;
+			});
+		}
 
-    Supplier<IN> getInputSupplier();
+		return result.map(output);
+	}
 
-    ExecutionAction<IN, OUT> setInputSupplier(Supplier<IN> inputSupplier);
+	BooleanSupplier getCheck();
 
-    Function<IN, OUT> getActionFunction();
+	ExecutionAction<IN, OUT> setCheck(BooleanSupplier check);
 
-    ExecutionAction<IN, OUT> setActionFunction(Function<IN, OUT> actionFunction);
+	default ExecutionAction<IN, OUT> addCheck(BooleanSupplier check){
+		return setCheck(() -> (getCheck() == null || getCheck().getAsBoolean()) && check.getAsBoolean());
+	}
 
-    default float lastExecutionDuration(){
-        return -1F;
-    }
+	Executor getExecutor();
 
-    ExecutionStack getExecutionStack();
+	ExecutionAction<IN, OUT> setExecutor(Executor executor);
 
-    ExecutionAction<IN, OUT> passExecutionStack(ExecutionStack executionStack);
+	Supplier<IN> getInputSupplier();
 
-    default void queue() {
-        var supplier = getInputSupplier();
-        queue(supplier != null ? supplier.get() : null, null, null);
-    }
+	ExecutionAction<IN, OUT> setInputSupplier(Supplier<IN> inputSupplier);
 
-    default void queue(IN input) {
-        queue(input, null, null);
-    }
+	Function<IN, OUT> getActionFunction();
 
-    default void queue(Consumer<? super OUT> successConsumer) {
-        var supplier = getInputSupplier();
-        queue(supplier != null ? supplier.get() : null, successConsumer, null);
-    }
+	ExecutionAction<IN, OUT> setActionFunction(Function<IN, OUT> actionFunction);
 
-    default void queue(IN input, Consumer<? super OUT> successConsumer) {
-        queue(input, successConsumer, null);
-    }
+	default float lastExecutionDuration(){
+		return -1F;
+	}
 
-    default void queue(Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer) {
-        var supplier = getInputSupplier();
-        queue(supplier != null ? supplier.get() : null, successConsumer, exceptionConsumer);
-    }
+	ExecutionStack getExecutionStack();
 
-    void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer);
+	ExecutionAction<IN, OUT> passExecutionStack(ExecutionStack executionStack);
 
-    default OUT execute() throws ExecutionException {
-        var supplier = getInputSupplier();
-        return execute(supplier != null ? supplier.get() : null);
-    }
+	default void queue(){
+		var supplier = getInputSupplier();
+		queue(supplier != null ? supplier.get() : null, null, null);
+	}
 
-    OUT execute(IN input) throws ExecutionException ;
+	default void queue(IN input){
+		queue(input, null, null);
+	}
 
-    static <U> ExecutionAction<?, List<U>> allOf(ExecutionAction<?, U> first, ExecutionAction<?, U>... others) {
-        List<ExecutionAction<?, U>> list = new ArrayList<>(){{
-            add(first);
-        }};
-        Collections.addAll(list, others);
-        return allOf(list);
-    }
+	default void queue(Consumer<? super OUT> successConsumer){
+		var supplier = getInputSupplier();
+		queue(supplier != null ? supplier.get() : null, successConsumer, null);
+	}
 
-    static <U> ExecutionAction<?, List<U>> allOf(List<ExecutionAction<?, U>> list){
-        return accumulate(list, Collectors.toList());
-    }
+	default void queue(IN input, Consumer<? super OUT> successConsumer){
+		queue(input, successConsumer, null);
+	}
 
-    static <E, A, O> ExecutionAction<?, O> accumulate(Collection<? extends ExecutionAction<?, ? extends E>> actions, Collector<? super E, A, ? extends O> collector) {
-        Supplier<A> accumulator = collector.supplier();
-        BiConsumer<A, ? super E> add = collector.accumulator();
-        Function<A, ? extends O> output = collector.finisher();
+	default void queue(Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer){
+		var supplier = getInputSupplier();
+		queue(supplier != null ? supplier.get() : null, successConsumer, exceptionConsumer);
+	}
 
-        var actionLHS = new LinkedHashSet<>(actions);
-        Iterator<? extends ExecutionAction<?, ? extends E>> iterator = actionLHS.iterator();
-        ExecutionAction<?, A> result = iterator.next().map(it -> {
-            A list = accumulator.get();
-            add.accept(list, it);
-            return list;
-        });
+	void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer);
 
-        while (iterator.hasNext()){
-            ExecutionAction<?, ? extends E> next = iterator.next();
-            result = result.and(next, (list, b) -> {
-                add.accept(list, b);
-                return list;
-            });
-        }
+	default OUT execute() throws ExecutionException{
+		var supplier = getInputSupplier();
+		return execute(supplier != null ? supplier.get() : null);
+	}
 
-        return result.map(output);
-    }
+	OUT execute(IN input) throws ExecutionException;
 
-    default <MAPPED> ExecutionAction<?, MAPPED> map(Function<? super OUT, ? extends MAPPED> map) {
-        return new MapExecutionAction<>(this, map);
-    }
+	default <MAPPED> ExecutionAction<?, MAPPED> map(Function<? super OUT, ? extends MAPPED> map){
+		return new MapExecutionAction<>(this, map);
+	}
 
-    default <OTHER, MAPPED> ExecutionAction<?, MAPPED> and(ExecutionAction<?, OTHER> other, BiFunction<? super OUT, ? super OTHER, ? extends MAPPED> accumulator) {
-        return new CombinedExecutionAction<>(this, other, accumulator);
-    }
+	default <OTHER, MAPPED> ExecutionAction<?, MAPPED> and(ExecutionAction<?, OTHER> other, BiFunction<? super OUT, ? super OTHER, ? extends MAPPED> accumulator){
+		return new CombinedExecutionAction<>(this, other, accumulator);
+	}
 
-    default <MAPPED> ExecutionAction<IN, MAPPED> then(ExecutionAction<OUT, MAPPED> next) {
-        return new ChainedExecutionAction<>(this, next);
-    }
+	default <MAPPED> ExecutionAction<IN, MAPPED> then(ExecutionAction<OUT, MAPPED> next){
+		return new ChainedExecutionAction<>(this, next);
+	}
 
 }

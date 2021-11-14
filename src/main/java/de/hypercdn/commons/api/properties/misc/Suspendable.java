@@ -1,15 +1,15 @@
 package de.hypercdn.commons.api.properties.misc;
 
-public interface Suspendable {
+public interface Suspendable{
 
-    boolean isSuspended();
+	boolean isSuspended();
 
-    boolean suspend();
+	boolean suspend();
 
-    boolean resume();
+	boolean resume();
 
-    default boolean suspend(boolean enable){
-        return enable ? suspend() : resume();
-    }
+	default boolean suspend(boolean enable){
+		return enable ? suspend() : resume();
+	}
 
 }
