@@ -1,5 +1,6 @@
 package de.hypercdn.commons.api.executionaction;
 
+import de.hypercdn.commons.api.properties.logging.Loggable;
 import de.hypercdn.commons.imp.executionaction.*;
 
 import java.util.*;
@@ -14,7 +15,9 @@ import java.util.stream.Collectors;
  * @param <IN>  the type parameter
  * @param <OUT> the type parameter
  */
-public interface ExecutionAction<IN, OUT>{
+public interface ExecutionAction<IN, OUT> extends Loggable{
+
+	Consumer<Throwable> DEFAULT_THROWABLE_CONSUMER = Throwable::printStackTrace;
 
 	/**
 	 * All of execution action.
@@ -185,7 +188,7 @@ public interface ExecutionAction<IN, OUT>{
 	 */
 	default void queue(){
 		var supplier = getInputSupplier();
-		queue(supplier != null ? supplier.get() : null, null, null);
+		queue(supplier != null ? supplier.get() : null, null, DEFAULT_THROWABLE_CONSUMER);
 	}
 
 	/**
@@ -194,7 +197,7 @@ public interface ExecutionAction<IN, OUT>{
 	 * @param input the input
 	 */
 	default void queue(IN input){
-		queue(input, null, null);
+		queue(input, null, DEFAULT_THROWABLE_CONSUMER);
 	}
 
 	/**
@@ -204,7 +207,7 @@ public interface ExecutionAction<IN, OUT>{
 	 */
 	default void queue(Consumer<? super OUT> successConsumer){
 		var supplier = getInputSupplier();
-		queue(supplier != null ? supplier.get() : null, successConsumer, null);
+		queue(supplier != null ? supplier.get() : null, successConsumer, DEFAULT_THROWABLE_CONSUMER);
 	}
 
 	/**
@@ -214,7 +217,7 @@ public interface ExecutionAction<IN, OUT>{
 	 * @param successConsumer the success consumer
 	 */
 	default void queue(IN input, Consumer<? super OUT> successConsumer){
-		queue(input, successConsumer, null);
+		queue(input, successConsumer, DEFAULT_THROWABLE_CONSUMER);
 	}
 
 	/**

@@ -14,6 +14,7 @@ Contains various code snippets for easy reuse
         - Identifier
         - Serialization
         - Misc
+        - Logger
     - Provider
     - Queue
     - Rate Limiter
