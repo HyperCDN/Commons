@@ -13,6 +13,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 
     private final ExecutionAction<IN, TRANS> firstExecutionAction;
     private final ExecutionAction<TRANS, OUT> secondExecutionAction;
+    private volatile long lastExecutionDuration = -1L;
 
     public ChainedExecutionAction(ExecutionAction<IN, TRANS> firstExecutionAction, ExecutionAction<TRANS, OUT> secondExecutionAction){
         this.firstExecutionAction = firstExecutionAction;
@@ -70,21 +71,30 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
     }
 
     @Override
+    public float lastExecutionDuration() {
+        return lastExecutionDuration / 1_000_000F;
+    }
+
+    @Override
     public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer) {
+        var startTime = System.nanoTime();
         try {
             Consumer<Throwable> throwableConsumer = (throwable) -> {
-              if(exceptionConsumer != null){
-                  exceptionConsumer.accept(throwable);
-              }
+                lastExecutionDuration = (System.nanoTime() - startTime);
+                if(exceptionConsumer != null){
+                    exceptionConsumer.accept(throwable);
+                }
             };
             firstExecutionAction.queue(firstResult -> {
                 secondExecutionAction.queue(firstResult, secondResult -> {
+                    lastExecutionDuration = (System.nanoTime() - startTime);
                     if(successConsumer != null){
                         successConsumer.accept(secondResult);
                     }
                 }, throwableConsumer);
             }, throwableConsumer);
         }catch (Throwable t) {
+            lastExecutionDuration = (System.nanoTime() - startTime);
             if(t instanceof Error){
                 throw t;
             }
@@ -96,13 +106,30 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 
     @Override
     public OUT execute(IN input) throws ExecutionException {
+        var startTime = System.nanoTime();
         try {
-            return secondExecutionAction.execute(firstExecutionAction.execute());
+            var result = secondExecutionAction.execute(firstExecutionAction.execute());
+            lastExecutionDuration = (System.nanoTime() - startTime);
+            return result;
         }catch (Throwable t) {
+            lastExecutionDuration = (System.nanoTime() - startTime);
             if (t instanceof Error) {
                 throw t;
             }
             throw new ExecutionException(t);
         }
+    }
+
+    public static void main(String...args){
+        var start = System.nanoTime();
+        for(var i = 0; i < 1000000; i ++){
+            System.nanoTime();
+        }
+        System.out.println((System.nanoTime() - start) / 1000000);
+        start = System.nanoTime();
+        for(var i = 0; i < 1000000; i ++){
+            System.currentTimeMillis();
+        }
+        System.out.println((System.nanoTime() - start) / 1000000);
     }
 }

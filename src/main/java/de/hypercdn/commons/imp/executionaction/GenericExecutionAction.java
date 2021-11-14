@@ -16,6 +16,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
     private Supplier<IN> inputSupplier = () -> null;
     private Function<IN, OUT> actionFunction = (unused) -> null;
     private BooleanSupplier check = () -> true;
+    private volatile long lastExecutionDuration = -1L;
 
     public GenericExecutionAction(){}
 
@@ -75,7 +76,13 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
     }
 
     @Override
+    public float lastExecutionDuration() {
+        return lastExecutionDuration / 1_000_000F;
+    }
+
+    @Override
     public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer) {
+        var startTime = System.nanoTime();
         try {
             executor.execute(() -> {
                 try {
@@ -86,10 +93,12 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
                         return;
                     }
                     var result = actionFunction.apply(input);
+                    lastExecutionDuration = (System.nanoTime() - startTime);
                     if(successConsumer != null){
                         successConsumer.accept(result);
                     }
                 }catch (Throwable t){
+                    lastExecutionDuration = (System.nanoTime() - startTime);
                     if(t instanceof Error){
                         throw t;
                     }
@@ -99,6 +108,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
                 }
             });
         }catch (Throwable t){
+            lastExecutionDuration = (System.nanoTime() - startTime);
             if(t instanceof Error){
                 throw t;
             }
@@ -111,7 +121,10 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
     @Override
     public OUT execute(IN input) {
         try {
-            return actionFunction.apply(input);
+            var startTime = System.nanoTime();
+            var result = actionFunction.apply(input);
+            lastExecutionDuration = (System.nanoTime() - startTime);
+            return result;
         }catch (Throwable t){
             if(t instanceof Error){
                 throw t;

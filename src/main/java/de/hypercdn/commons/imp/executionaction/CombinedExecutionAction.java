@@ -16,6 +16,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
     private final ExecutionAction<?, OUT2> executionAction2;
     private final BiFunction<? super OUT1, ? super  OUT2, ? extends MAPPED> accumulator;
     private volatile boolean failed = false;
+    private volatile long lastExecutionDuration = -1L;
 
     public CombinedExecutionAction(ExecutionAction<?, OUT1> executionAction1, ExecutionAction<?, OUT2> executionAction2, BiFunction<? super OUT1, ? super  OUT2, ? extends MAPPED> accumulator) {
         this.executionAction1 = executionAction1;
@@ -73,19 +74,26 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
     }
 
     @Override
+    public float lastExecutionDuration() {
+        return lastExecutionDuration / 1_000_000F;
+    }
+
+    @Override
     public void queue(Void input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer) {
-        ReentrantLock lock = new ReentrantLock();
-        AtomicBoolean done1 = new AtomicBoolean(false);
-        AtomicBoolean done2 = new AtomicBoolean(false);
-        AtomicReference<OUT1> result1 = new AtomicReference<>();
-        AtomicReference<OUT2> result2 = new AtomicReference<>();
+        var startTime = System.nanoTime();
+        var lock = new ReentrantLock();
+        var done1 = new AtomicBoolean(false);
+        var done2 = new AtomicBoolean(false);
+        var result1 = new AtomicReference<OUT1>();
+        var result2 = new AtomicReference<OUT2>();
 
         Consumer<Throwable> failureCallback = (throwable) -> {
-             if(failed) return;
-             failed = true;
-             if(exceptionConsumer != null){
-                 exceptionConsumer.accept(throwable);
-             }
+            if(failed) return;
+            failed = true;
+            lastExecutionDuration = (System.nanoTime() - startTime);
+            if(exceptionConsumer != null){
+                exceptionConsumer.accept(throwable);
+            }
         };
 
         executionAction1.queue((result) -> LockUtil.executeLocked(lock, () -> {
@@ -93,6 +101,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
                 done1.set(true);
                 result1.set(result);
                 if(done2.get()){
+                    lastExecutionDuration = (System.nanoTime() - startTime);
                     if(successConsumer != null)
                         successConsumer.accept(accumulator.apply(result1.get(), result2.get()));
                 }
@@ -105,6 +114,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
                 done2.set(true);
                 result2.set(result);
                 if(done1.get()){
+                    lastExecutionDuration = (System.nanoTime() - startTime);
                     if(successConsumer != null)
                         successConsumer.accept(accumulator.apply(result1.get(), result2.get()));
                 }
@@ -116,11 +126,15 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 
     @Override
     public MAPPED execute(Void input) throws ExecutionException {
+        var startTime = System.nanoTime();
         try {
             var a = executionAction1.execute();
             var b = executionAction2.execute();
-            return accumulator.apply(a, b);
+            var result = accumulator.apply(a, b);
+            lastExecutionDuration = (System.nanoTime() - startTime);
+            return result;
         }catch (Throwable t){
+            lastExecutionDuration = (System.nanoTime() - startTime);
             if (t instanceof Error){
                 throw t;
             }
