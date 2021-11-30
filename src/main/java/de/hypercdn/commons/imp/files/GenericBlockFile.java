@@ -89,21 +89,6 @@ public class GenericBlockFile implements BlockFile{
 		return null;
 	}
 
-	/**
-	 * The entry point of application.
-	 *
-	 * @param args the input arguments
-	 *
-	 * @throws Exception the exception
-	 */
-	public static void main(String... args) throws Exception{
-		var blockFile = GenericBlockFile.withFile(new File("block.file"));
-		String a = "the grey cat";
-		blockFile.write(2, a.getBytes(StandardCharsets.UTF_8));
-		System.out.println(new String(blockFile.read(2)));
-		blockFile.close();
-	}
-
 	@Override
 	public int getBlockByteSize(){
 		return blockByteSize;
