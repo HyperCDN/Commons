@@ -49,15 +49,28 @@ public class Check<T>{
 	}
 
 	/**
-	 * Is instance of check.
+	 * As check.
+	 *
+	 * @param <O>    the type parameter
+	 * @param oClass the o class
+	 *
+	 * @return the check
+	 */
+	public <O> Check<O> as(Class<O> oClass){
+		return (Check<O>) this;
+	}
+
+
+	/**
+	 * Is assignable from check.
 	 *
 	 * @param <O>   the type parameter
 	 * @param clazz the clazz
 	 *
 	 * @return the check
 	 */
-	public <O> Check<O> isInstanceOf(Class<O> clazz){
-		return (Check<O>) satisfies(r -> clazz.isAssignableFrom(r.getClass()));
+	public <O> Check<O> isAssignableFrom(Class<O> clazz){
+		return as(clazz).satisfies(r -> clazz.isAssignableFrom(r.getClass()));
 	}
 
 	/**
