@@ -41,7 +41,7 @@ publishing {
                 username findProperty("nexusu") as String
                 password findProperty("nexusp") as String
             }
-            url "https://cd.voigt.app/repository/hypercdn-maven/"
+            url "https://cd.voigt.app/repository/maven-voigt/"
         }
     }
     publications {
