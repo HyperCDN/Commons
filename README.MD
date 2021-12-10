@@ -8,11 +8,7 @@
 Grab the latest version from our [Nexus-Proxy](https://nexus.hypercdn.de/) using Gradle or Maven.  
 ⚠️Be aware that this instance acts as proxy for load distribution.  
 ⚠️Artifacts might not be listed till requested and the initial load might be very slow.
-```
-:warning: Be aware that this instance acts as proxy for load distribution.
-:warning: Artifacts might not be listed till requested. 
-:warning: Initial load might also be very slow.
-```
+
 ### Gradle
 
 ```
