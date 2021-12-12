@@ -14,6 +14,18 @@ public interface BlockFile extends AutoCloseable{
 	 */
 	int getBlockByteSize();
 
+
+	/**
+	 * Read header byte [ ].
+	 *
+	 * @param pos the pos
+	 *
+	 * @return the byte [ ]
+	 *
+	 * @throws IOException the io exception
+	 */
+	byte[] readHeader(int pos) throws IOException;
+
 	/**
 	 * Read byte [ ].
 	 *

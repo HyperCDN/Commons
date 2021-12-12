@@ -49,7 +49,7 @@ public class GenericBlockFile implements BlockFile{
 	 * @throws IOException the io exception
 	 */
 	public static BlockFile withFile(File file) throws IOException{
-		return withFile(file, DEFAULT_BLOCK_SIZE);
+		return withFile(file, DEFAULT_BLOCK_SIZE, null);
 	}
 
 	/**
@@ -57,12 +57,13 @@ public class GenericBlockFile implements BlockFile{
 	 *
 	 * @param file          the file
 	 * @param blockByteSize the block byte size
+	 * @param headers       the headers
 	 *
 	 * @return the block file
 	 *
 	 * @throws IOException the io exception
 	 */
-	public static BlockFile withFile(File file, int blockByteSize) throws IOException{
+	public static BlockFile withFile(File file, int blockByteSize, byte[][] headers) throws IOException{
 		var fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
 		if(fileChannel.size() > 0){
 			var fileId = ByteBuffer.allocate(FILE_INDICATOR.getBytes(StandardCharsets.UTF_8).length);
@@ -85,13 +86,31 @@ public class GenericBlockFile implements BlockFile{
 			var headerAR = ByteBuffer.allocate(Byte.BYTES * blockByteSize * RESERVED_HEADER_BLOCKS);
 			Arrays.fill(headerAR.array(), (byte) 0xff);
 			fileChannel.write(headerAR, FILE_INDICATOR.getBytes(StandardCharsets.UTF_8).length + Integer.BYTES);
+			// write header contents
+			if(headers != null){
+				for(int i = 0; i < Math.min(headers.length, RESERVED_HEADER_BLOCKS); i++){
+					var header = headers[i];
+					fileChannel.write(ByteBuffer.wrap(header), FILE_INDICATOR.getBytes(StandardCharsets.UTF_8).length + Integer.BYTES + (long) i * blockByteSize);
+				}
+			}
+			return new GenericBlockFile(blockBS.flip().getInt(), fileChannel);
 		}
-		return null;
 	}
 
 	@Override
 	public int getBlockByteSize(){
 		return blockByteSize;
+	}
+
+	@Override
+	public byte[] readHeader(int pos) throws IOException{
+		if(pos < 0){
+			throw new IllegalArgumentException("Position cant be negative");
+		}
+		else if(pos >= RESERVED_HEADER_BLOCKS){
+			throw new IllegalArgumentException("Position out of range for header");
+		}
+		return read(pos, FILE_INDICATOR.getBytes(StandardCharsets.UTF_8).length + Integer.BYTES);
 	}
 
 	@Override
