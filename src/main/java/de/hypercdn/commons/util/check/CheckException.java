@@ -15,7 +15,7 @@ public class CheckException extends RuntimeException{
 	 * @param checkResult the check result
 	 */
 	public CheckException(Object object, CheckResult checkResult){
-		super("Object "+object+" does not match for the following requirements: "+checkResult.getMessage());
+		super("Object "+object+" does not match the following requirements: "+checkResult.getMessage());
 		this.object = object;
 		this.checkResult = checkResult;
 	}
