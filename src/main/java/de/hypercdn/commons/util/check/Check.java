@@ -253,7 +253,7 @@ public class Check<T>{
 	 */
 	public Check<T> isEqualTo(T t){
 		Objects.requireNonNull(t);
-		return and(t::equals, "is equals to "+t);
+		return and(t::equals, "is equal to "+t);
 	}
 
 	/**
@@ -351,7 +351,7 @@ public class Check<T>{
 	public Check<T> isInRangeOf(Comparable<T> min, Comparable<T> max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> min.compareTo(o) <= 0 && max.compareTo(o) >= 0, "is in range of "+min+" and "+max);
+		return and(o -> min.compareTo(o) <= 0 && max.compareTo(o) >= 0, "is in range of "+min+" to "+max);
 	}
 
 	/**
@@ -365,7 +365,7 @@ public class Check<T>{
 	public Check<T> isOutOfRangeOf(Comparable<T> min, Comparable<T> max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> min.compareTo(o) > 0 && max.compareTo(o) < 0, "is not in range of "+min+" and "+max);
+		return and(o -> min.compareTo(o) > 0 && max.compareTo(o) < 0, "is not in range of "+min+" to "+max);
 	}
 
 	/**
@@ -403,7 +403,7 @@ public class Check<T>{
 	public Check<T> isInRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) >= 0 && NumberUtil.compare(oNumber, max) <= 0, "is in range of "+min+" and "+max);
+		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) >= 0 && NumberUtil.compare(oNumber, max) <= 0, "is in range of "+min+" to "+max);
 	}
 
 	/**
@@ -417,7 +417,7 @@ public class Check<T>{
 	public Check<T> isOutOfRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) < 0 && NumberUtil.compare(oNumber, max) > 0, "is not in range of "+min+" and "+max);
+		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) < 0 && NumberUtil.compare(oNumber, max) > 0, "is not in range of "+min+" to "+max);
 	}
 
 }
