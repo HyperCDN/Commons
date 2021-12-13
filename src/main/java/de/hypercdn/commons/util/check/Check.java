@@ -420,15 +420,5 @@ public class Check<T>{
 		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) < 0 && NumberUtil.compare(oNumber, max) > 0, "is not in range of "+min+" and "+max);
 	}
 
-	public static void main(String...args){
-
-		Check.that()
-			.isInRangeOf(10, 100)
-			.isEqualTo(20)
-			.or().isNull()
-			.with(200);
-
-	}
-
 }
 
