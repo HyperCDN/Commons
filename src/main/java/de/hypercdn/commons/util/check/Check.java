@@ -82,49 +82,26 @@ public class Check<T>{
 		var and = results.get("and");
 		var or = results.get("or");
 
-		if(hasAndNext && hasOrNext){ // x && y || z
-			if(!(self.isOk() && and.isOk()) && !or.isOk()){
-				var description = !self.isOk() ? self.getMessage() : "";
-				if(!description.isBlank() && !and.isOk()){
-					description += " AND ";
-				}
-				description += !and.isOk() ? and.getMessage() : "";
-				if(!description.isBlank() && !or.isOk()){
-					description += " OR ";
-				}
-				description += !or.isOk() ? or.getMessage() : "";
-				if(!description.isBlank()){
-					return new CheckResult(description);
-				}
-			}
-			return new CheckResult();
-		}else if(hasAndNext){ // x && y
-			if(!(self.isOk() && and.isOk())){
-				var description = !self.isOk() ? self.getMessage() : "";
-				if(!description.isBlank() && !and.isOk()){
-					description += " AND ";
-				}
-				description += !and.isOk() ? and.getMessage() : "";
-				if(!description.isBlank()){
-					return new CheckResult(description);
-				}
-			}
-			return new CheckResult();
-		}else if(hasOrNext){ // x || z
-			if(!(self.isOk() || or.isOk())){
-				var description = !self.isOk() ? self.getMessage() : "";
-				if(!description.isBlank() && !or.isOk()){
-					description += " OR ";
-				}
-				description += !or.isOk() ? or.getMessage() : "";
-				if(!description.isBlank()){
-					return new CheckResult(description);
-				}
-			}
-			return new CheckResult();
-		}else {
-			return self;
+		var description = new StringBuilder();
+		if(self != null && !self.isOk()){
+			description.append(self.getMessage());
 		}
+		if(and != null && !and.isOk()){
+			if(!description.isEmpty()){
+				description.append(" AND ");
+			};
+			description.append(and.getMessage());
+		}
+		if(or != null && !or.isOk()){
+			if(!description.isEmpty()){
+				description.append(" OR ");
+			}
+			description.append(or.getMessage());
+		}
+		if((self == null || self.isOk()) && (and == null || and.isOk()) || (or != null && or.isOk())){
+			return new CheckResult();
+		}
+		return new CheckResult(description.toString());
 	}
 
 

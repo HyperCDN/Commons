@@ -25,7 +25,7 @@ public class CheckResult{
 	 */
 	protected CheckResult(String message){
 		Objects.requireNonNull(message);
-		this.ok = false;
+		this.ok = message.isBlank();
 		this.message = message;
 	}
 
