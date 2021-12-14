@@ -29,11 +29,16 @@ public class Check<T>{
 	 * @param predicate   the predicate
 	 * @param description the description
 	 */
-	public Check(Predicate<T> predicate, String description){
+	private Check(Predicate<T> predicate, String description){
 		Objects.requireNonNull(predicate);
 		Objects.requireNonNull(description);
 		this.predicate = predicate;
 		this.description = description;
+	}
+
+	@Override
+	public String toString(){
+		return asString(false);
 	}
 
 	/**
@@ -43,6 +48,14 @@ public class Check<T>{
 	 */
 	public static Check<Object> that(){
 		return new Check<>((t) -> true, "");
+	}
+
+	private Check<T> getBase(){
+		var base = this;
+		while(base.getParent() != null){
+			base = base.getParent();
+		}
+		return base;
 	}
 
 	private Check<T> getParent(){
@@ -63,16 +76,45 @@ public class Check<T>{
 	}
 
 	/**
+	 * As string string.
+	 *
+	 * @param formatted the formatted
+	 *
+	 * @return the string
+	 */
+	public String asString(boolean formatted){
+		return getBase().asString(formatted, 0);
+	}
+
+	private String asString(boolean formatted, int layer){
+		var string = new StringBuilder();
+		if(!description.isBlank()){
+			string.append(description);
+		}
+		if(andNext != null){
+			var andNextString = andNext.asString(formatted, layer);
+			if(!string.isEmpty() && !andNextString.isBlank()){
+				string.append(formatted ? "\n" : " ").append("AND ");
+			}
+			string.append(andNextString);
+		}
+		if(orNext != null){
+			var orNextString = orNext.asString(formatted, layer + 1);
+			if(!string.isEmpty() && !orNextString.isBlank()){
+				string.append(formatted ? "\n\t".repeat(layer + 1) : " ").append("OR ");
+			}
+			string.append(orNextString);
+		}
+		return string.toString();
+	}
+
+	/**
 	 * With.
 	 *
 	 * @param t the t
 	 */
 	public void with(T t){
-		var base = this;
-		while(base.getParent() != null){
-			base = base.getParent();
-		}
-		var result = base.at(t);
+		var result = getBase().at(t);
 		if(!result.isOk()){
 			throw new CheckException(t, result);
 		}
