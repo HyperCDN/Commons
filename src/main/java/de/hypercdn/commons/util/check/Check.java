@@ -2,7 +2,10 @@ package de.hypercdn.commons.util.check;
 
 import de.hypercdn.commons.util.NumberUtil;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -33,13 +36,22 @@ public class Check<T>{
 		this.description = description;
 	}
 
-	private Check<T> setParent(Check<T> parent){
-		this.parent = parent;
-		return this;
+	/**
+	 * That check.
+	 *
+	 * @return the check
+	 */
+	public static Check<Object> that(){
+		return new Check<>((t) -> true, "");
 	}
 
 	private Check<T> getParent(){
 		return this.parent;
+	}
+
+	private Check<T> setParent(Check<T> parent){
+		this.parent = parent;
+		return this;
 	}
 
 	private void setAndNext(Check<T> next){
@@ -89,7 +101,7 @@ public class Check<T>{
 		if(and != null && !and.isOk()){
 			if(!description.isEmpty()){
 				description.append(" AND ");
-			};
+			}
 			description.append(and.getMessage());
 		}
 		if(or != null && !or.isOk()){
@@ -102,16 +114,6 @@ public class Check<T>{
 			return new CheckResult();
 		}
 		return new CheckResult(description.toString());
-	}
-
-
-	/**
-	 * That check.
-	 *
-	 * @return the check
-	 */
-	public static Check<Object> that(){
-		return new Check<>((t) -> true, "");
 	}
 
 	/**
@@ -180,7 +182,7 @@ public class Check<T>{
 	 */
 	public <O> Check<O> isAssignableFrom(Class<O> clazz){
 		Objects.requireNonNull(clazz);
-		return as(clazz).and(r -> clazz.isAssignableFrom(r.getClass()), "is assignable from "+clazz.getSimpleName());
+		return as(clazz).and(r -> clazz.isAssignableFrom(r.getClass()), "is assignable from " + clazz.getSimpleName());
 	}
 
 	/**
@@ -228,7 +230,7 @@ public class Check<T>{
 	 */
 	public Check<T> isEqualTo(T t){
 		Objects.requireNonNull(t);
-		return and(t::equals, "is equal to "+t);
+		return and(t::equals, "is equal to " + t);
 	}
 
 	/**
@@ -240,7 +242,7 @@ public class Check<T>{
 	 */
 	public Check<T> isNotEqualTo(T t){
 		Objects.requireNonNull(t);
-		return and(o -> !t.equals(o), "is not equal to "+t);
+		return and(o -> !t.equals(o), "is not equal to " + t);
 	}
 
 	/**
@@ -264,7 +266,7 @@ public class Check<T>{
 	 */
 	public Check<T> doesEqualToAnyOf(Set<T> t){
 		Objects.requireNonNull(t);
-		return and(t::contains, "equals any of "+ Arrays.toString(t.toArray()));
+		return and(t::contains, "equals any of " + Arrays.toString(t.toArray()));
 	}
 
 	/**
@@ -288,7 +290,7 @@ public class Check<T>{
 	 */
 	public Check<T> doesNotEqualToAnyOf(Set<T> t){
 		Objects.requireNonNull(t);
-		return and(o -> !t.contains(o), "does not equal any of "+ Arrays.toString(t.toArray()));
+		return and(o -> !t.contains(o), "does not equal any of " + Arrays.toString(t.toArray()));
 	}
 
 	/**
@@ -300,7 +302,7 @@ public class Check<T>{
 	 */
 	public Check<T> isLargerThan(Comparable<T> comparable){
 		Objects.requireNonNull(comparable);
-		return and(o -> comparable.compareTo(o) < 0, "is larger than "+comparable);
+		return and(o -> comparable.compareTo(o) < 0, "is larger than " + comparable);
 	}
 
 	/**
@@ -312,7 +314,7 @@ public class Check<T>{
 	 */
 	public Check<T> isSmallerThan(Comparable<T> comparable){
 		Objects.requireNonNull(comparable);
-		return and(o -> comparable.compareTo(o) > 0, "is smaller than"+comparable);
+		return and(o -> comparable.compareTo(o) > 0, "is smaller than" + comparable);
 	}
 
 	/**
@@ -326,7 +328,7 @@ public class Check<T>{
 	public Check<T> isInRangeOf(Comparable<T> min, Comparable<T> max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> min.compareTo(o) <= 0 && max.compareTo(o) >= 0, "is in range of "+min+" to "+max);
+		return and(o -> min.compareTo(o) <= 0 && max.compareTo(o) >= 0, "is in range of " + min + " to " + max);
 	}
 
 	/**
@@ -340,7 +342,7 @@ public class Check<T>{
 	public Check<T> isOutOfRangeOf(Comparable<T> min, Comparable<T> max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> min.compareTo(o) > 0 && max.compareTo(o) < 0, "is not in range of "+min+" to "+max);
+		return and(o -> min.compareTo(o) > 0 && max.compareTo(o) < 0, "is not in range of " + min + " to " + max);
 	}
 
 	/**
@@ -352,7 +354,7 @@ public class Check<T>{
 	 */
 	public Check<T> isLargerThan(Number number){
 		Objects.requireNonNull(number);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) > 0, "is larger than "+number);
+		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) > 0, "is larger than " + number);
 	}
 
 	/**
@@ -364,7 +366,7 @@ public class Check<T>{
 	 */
 	public Check<T> isSmallerThan(Number number){
 		Objects.requireNonNull(number);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) < 0, "is smaller than "+number);
+		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) < 0, "is smaller than " + number);
 	}
 
 	/**
@@ -378,7 +380,7 @@ public class Check<T>{
 	public Check<T> isInRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) >= 0 && NumberUtil.compare(oNumber, max) <= 0, "is in range of "+min+" to "+max);
+		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) >= 0 && NumberUtil.compare(oNumber, max) <= 0, "is in range of " + min + " to " + max);
 	}
 
 	/**
@@ -392,7 +394,7 @@ public class Check<T>{
 	public Check<T> isOutOfRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) < 0 && NumberUtil.compare(oNumber, max) > 0, "is not in range of "+min+" to "+max);
+		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) < 0 && NumberUtil.compare(oNumber, max) > 0, "is not in range of " + min + " to " + max);
 	}
 
 }
