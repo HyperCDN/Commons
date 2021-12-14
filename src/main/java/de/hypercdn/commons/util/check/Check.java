@@ -42,14 +42,12 @@ public class Check<T>{
 		return this.parent;
 	}
 
-	private Check<T> setAndNext(Check<T> next){
+	private void setAndNext(Check<T> next){
 		this.andNext = next;
-		return this;
 	}
 
-	private Check<T> setOrNext(Check<T> next){
+	private void setOrNext(Check<T> next){
 		this.orNext = next;
-		return this;
 	}
 
 	/**
@@ -86,15 +84,15 @@ public class Check<T>{
 
 		if(hasAndNext && hasOrNext){ // x && y || z
 			if(!(self.isOk() && and.isOk()) && !or.isOk()){
-				var description = self.isOk() ? "" : self.getMessage();
+				var description = !self.isOk() ? self.getMessage() : "";
 				if(!description.isBlank() && !and.isOk()){
 					description += " AND ";
 				}
-				description += and.isOk() ? "" : and.getMessage();
+				description += !and.isOk() ? and.getMessage() : "";
 				if(!description.isBlank() && !or.isOk()){
 					description += " OR ";
 				}
-				description += or.isOk() ? "" : or.getMessage();
+				description += !or.isOk() ? or.getMessage() : "";
 				if(!description.isBlank()){
 					return new CheckResult(description);
 				}
@@ -102,11 +100,11 @@ public class Check<T>{
 			return new CheckResult();
 		}else if(hasAndNext){ // x && y
 			if(!(self.isOk() && and.isOk())){
-				var description = self.isOk() ? "" : self.getMessage();
+				var description = !self.isOk() ? self.getMessage() : "";
 				if(!description.isBlank() && !and.isOk()){
 					description += " AND ";
 				}
-				description += and.isOk() ? "" : and.getMessage();
+				description += !and.isOk() ? and.getMessage() : "";
 				if(!description.isBlank()){
 					return new CheckResult(description);
 				}
@@ -114,11 +112,11 @@ public class Check<T>{
 			return new CheckResult();
 		}else if(hasOrNext){ // x || z
 			if(!(self.isOk() || or.isOk())){
-				var description = self.isOk() ? "" : self.getMessage();
+				var description = !self.isOk() ? self.getMessage() : "";
 				if(!description.isBlank() && !or.isOk()){
 					description += " OR ";
 				}
-				description += or.isOk() ? "" : or.getMessage();
+				description += !or.isOk() ? or.getMessage() : "";
 				if(!description.isBlank()){
 					return new CheckResult(description);
 				}
