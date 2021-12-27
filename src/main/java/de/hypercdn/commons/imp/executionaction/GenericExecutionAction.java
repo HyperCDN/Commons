@@ -113,7 +113,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 
 	@Override
 	public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer){
-		logger.debug("Started executing " + getClass().getSimpleName() + "#" + hashCode());
+		logger.trace("Started executing " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 		try{
 			executionStack.setCurrentStack(StackTraceUtil.currentStacktrace());
@@ -129,14 +129,14 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 					}
 					var result = actionFunction.apply(input);
 					lastExecutionDuration = (System.nanoTime() - startTime);
-					logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+					logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 					if(successConsumer != null){
 						successConsumer.accept(result);
 					}
 				}
 				catch(Throwable t){
 					lastExecutionDuration = (System.nanoTime() - startTime);
-					logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+					logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 					t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
 					if(t instanceof Error){
 						throw t;
@@ -149,7 +149,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 		}
 		catch(Throwable t){
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
 			if(t instanceof Error){
 				throw t;

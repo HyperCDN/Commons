@@ -1,6 +1,8 @@
 package de.hypercdn.commons.imp.files;
 
 import de.hypercdn.commons.api.files.BlockFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +29,8 @@ public class GenericBlockFile implements BlockFile{
 	 * The constant RESERVED_HEADER_BLOCKS.
 	 */
 	public static final int RESERVED_HEADER_BLOCKS = 16;
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final int blockByteSize;
 	private final int headerSizeBytes;
@@ -122,6 +126,7 @@ public class GenericBlockFile implements BlockFile{
 		if(pos < 0){
 			throw new IllegalArgumentException("Position cant be negative");
 		}
+		logger.debug("Reading data block at position " + pos + " with an offset of " + offset + " bytes from the file channel " + fileChannel);
 		var read = 0;
 		var byteBuffer = ByteBuffer.allocate(Byte.BYTES * blockByteSize);
 		while(read < blockByteSize * Byte.BYTES){
@@ -130,6 +135,7 @@ public class GenericBlockFile implements BlockFile{
 				break;
 			}
 			read += rc;
+			logger.trace("Reading data block at position " + pos + " with an offset of " + offset + " bytes from the file channel " + fileChannel + " Currently read bytes "+read);
 		}
 		return byteBuffer.array();
 	}
@@ -143,10 +149,12 @@ public class GenericBlockFile implements BlockFile{
 		if(pos < 0){
 			throw new IllegalArgumentException("Position cant be negative");
 		}
+		logger.debug("Writing " + data.length + " bytes at position " + pos + " with an offset of " + offset + " to the file channel " + fileChannel);
 		var written = 0;
 		var byteBuffer = ByteBuffer.wrap(data);
 		while(written < data.length){
 			written += fileChannel.write(byteBuffer, offset * Byte.BYTES + blockByteSize * pos * Byte.BYTES + written * Byte.BYTES);
+			logger.trace("Writing " + data.length + " bytes at position " + pos + " with an offset of " + offset + " to the file channel " + fileChannel + " Currently written bytes "+written);
 		}
 		return written == data.length;
 	}

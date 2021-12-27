@@ -109,7 +109,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 
 	@Override
 	public void queue(Void input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer){
-		logger.debug("Started executing " + getClass().getSimpleName() + "#" + hashCode());
+		logger.trace("Started executing " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 		var lock = new ReentrantLock();
 		var done1 = new AtomicBoolean(false);
@@ -123,7 +123,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 			}
 			failed = true;
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			if(exceptionConsumer != null){
 				exceptionConsumer.accept(throwable);
 			}
@@ -135,7 +135,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 				result1.set(result);
 				if(done2.get()){
 					lastExecutionDuration = (System.nanoTime() - startTime);
-					logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+					logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 					if(successConsumer != null){
 						successConsumer.accept(accumulator.apply(result1.get(), result2.get()));
 					}
@@ -151,7 +151,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 				result2.set(result);
 				if(done1.get()){
 					lastExecutionDuration = (System.nanoTime() - startTime);
-					logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+					logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 					if(successConsumer != null){
 						successConsumer.accept(accumulator.apply(result1.get(), result2.get()));
 					}
@@ -172,12 +172,12 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 			var b = executionAction2.execute();
 			var result = accumulator.apply(a, b);
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			return result;
 		}
 		catch(Throwable t){
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			if(t instanceof Error){
 				throw t;
 			}

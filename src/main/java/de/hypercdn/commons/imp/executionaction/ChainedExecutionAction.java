@@ -105,12 +105,12 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 
 	@Override
 	public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer){
-		logger.debug("Started executing " + getClass().getSimpleName() + "#" + hashCode());
+		logger.trace("Started executing " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 		try{
 			Consumer<Throwable> throwableConsumer = (throwable) -> {
 				lastExecutionDuration = (System.nanoTime() - startTime);
-				logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+				logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 				if(exceptionConsumer != null){
 					exceptionConsumer.accept(throwable);
 				}
@@ -118,7 +118,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 			firstExecutionAction.queue(firstResult -> {
 				secondExecutionAction.queue(firstResult, secondResult -> {
 					lastExecutionDuration = (System.nanoTime() - startTime);
-					logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+					logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 					if(successConsumer != null){
 						successConsumer.accept(secondResult);
 					}
@@ -127,7 +127,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 		}
 		catch(Throwable t){
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			if(t instanceof Error){
 				throw t;
 			}

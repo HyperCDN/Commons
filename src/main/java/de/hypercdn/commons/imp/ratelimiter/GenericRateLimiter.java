@@ -1,6 +1,8 @@
 package de.hypercdn.commons.imp.ratelimiter;
 
 import de.hypercdn.commons.api.ratelimiter.RateLimiter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +19,8 @@ public class GenericRateLimiter implements RateLimiter{
 	private long maximum;
 	private int underflowFactor = 2;
 	private long nsPerUsage;
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Instantiates a new Generic rate limiter.
@@ -81,6 +85,7 @@ public class GenericRateLimiter implements RateLimiter{
 
 	@Override
 	public synchronized void drainBy(long amount) throws RateLimiterException{
+		logger.trace("Trying to drain rate limiter " + this +" by "+amount);
 		long current = System.nanoTime();
 		// lower limit
 		if(filler < current){
@@ -94,8 +99,10 @@ public class GenericRateLimiter implements RateLimiter{
 		}
 		// check if filler fits inside the window
 		if((current + nsWindowSize) < filler){
+			logger.trace("Draining rate limiter " + this + " by " + amount + " failed. Window is " + ((current + nsWindowSize) / (float) filler) * 100 + "% depleted");
 			throw new RateLimiterException("Rate limit exceeded!");
 		}
+		logger.trace("Drained rate limiter " + this + " by " + amount + ". Window is " + ((current + nsWindowSize) / (float) filler) * 100 + "% depleted");
 	}
 
 	@Override
