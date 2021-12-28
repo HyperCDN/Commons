@@ -4,6 +4,7 @@ import de.hypercdn.commons.imp.executionaction.*;
 
 import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 public interface ExecutionAction<IN, OUT>{
 
 	Consumer<Throwable> DEFAULT_THROWABLE_CONSUMER = Throwable::printStackTrace;
+
+	Executor DEFAULT_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 	/**
 	 * All of execution action.

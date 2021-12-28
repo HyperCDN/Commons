@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -23,7 +22,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final ExecutionStack executionStack = new ExecutionStack();
-	private Executor executor = ForkJoinPool.commonPool();
+	private Executor executor = DEFAULT_EXECUTOR;
 	private Supplier<IN> inputSupplier = () -> null;
 	private Function<IN, OUT> actionFunction = (unused) -> null;
 	private BooleanSupplier check = () -> true;
