@@ -36,7 +36,7 @@ public class GenericBlockFile implements BlockFile{
 	private final int headerSizeBytes;
 	private final FileChannel fileChannel;
 
-	private GenericBlockFile(int blockByteSize, FileChannel fileChannel){
+	protected GenericBlockFile(int blockByteSize, FileChannel fileChannel){
 		this.blockByteSize = blockByteSize;
 		this.fileChannel = fileChannel;
 		// File Indicator + Block Size Indicator + Reserved Header Blocks = Header Size
