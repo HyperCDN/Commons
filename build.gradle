@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'de.hypercdn.commons'
-version '1.0.1.' + System.getenv("BUILD_NUMBER")
+version '1.0.2.' + System.getenv("BUILD_NUMBER")
 sourceCompatibility = 17
 compileJava.options.encoding = 'UTF-8'
 
