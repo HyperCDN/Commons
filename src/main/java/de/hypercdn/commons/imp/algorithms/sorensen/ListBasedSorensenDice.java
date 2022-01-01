@@ -8,7 +8,7 @@ import de.hypercdn.commons.util.StringUtil;
  */
 public class ListBasedSorensenDice implements StringSimilarity{
 
-	private static final ListBasedSorensenDice instance = new ListBasedSorensenDice();
+	public static final ListBasedSorensenDice instance = new ListBasedSorensenDice();
 
 	@Override
 	public StringSimilarity getInstance(){

@@ -10,7 +10,7 @@ import java.util.HashSet;
  */
 public class SetBasedJaccard implements StringSimilarity{
 
-	private static final SetBasedJaccard instance = new SetBasedJaccard();
+	public static final SetBasedJaccard instance = new SetBasedJaccard();
 
 	@Override
 	public StringSimilarity getInstance(){

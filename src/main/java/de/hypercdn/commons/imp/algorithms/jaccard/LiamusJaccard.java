@@ -9,7 +9,7 @@ import de.hypercdn.commons.util.StringUtil;
  */
 public class LiamusJaccard implements StringSimilarity{
 
-	private static final LiamusJaccard instance = new LiamusJaccard();
+	public static final LiamusJaccard instance = new LiamusJaccard();
 	/**
 	 * The constant JACCARD_ARRAY_64WORDS.
 	 */

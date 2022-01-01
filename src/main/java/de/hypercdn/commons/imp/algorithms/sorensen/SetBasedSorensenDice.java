@@ -10,7 +10,7 @@ import java.util.HashSet;
  */
 public class SetBasedSorensenDice implements StringSimilarity{
 
-	private static final SetBasedSorensenDice instance = new SetBasedSorensenDice();
+	public static final SetBasedSorensenDice instance = new SetBasedSorensenDice();
 
 	@Override
 	public StringSimilarity getInstance(){
