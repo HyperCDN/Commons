@@ -1,4 +1,4 @@
-package de.hypercdn.commons.imp.checksum;
+package de.hypercdn.commons.imp.algorithms.checksum;
 
 import java.util.zip.Checksum;
 
