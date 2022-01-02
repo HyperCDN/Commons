@@ -6,7 +6,7 @@ import de.hypercdn.commons.api.flags.BitFlags;
 /**
  * The type Integer flags.
  */
-public abstract class IntegerFlags implements BitFlags{
+public abstract class IntegerFlags implements BitFlags<Integer>{
 
 	private int value;
 
@@ -19,26 +19,21 @@ public abstract class IntegerFlags implements BitFlags{
 		this.value = value;
 	}
 
-	/**
-	 * Get value long.
-	 *
-	 * @return the long
-	 */
-	public long getValue(){
+	public Integer getValue(){
 		return value;
 	}
 
 	@Override
 	public void set(BitFlag... flags){
 		for(var flag : flags){
-			value |= 1L << flag.getBitPos();
+			value |= 1 << flag.getBitPos();
 		}
 	}
 
 	@Override
 	public void unset(BitFlag... flags){
 		for(var flag : flags){
-			value &= ~(1L << flag.getBitPos());
+			value &= ~(1 << flag.getBitPos());
 		}
 	}
 

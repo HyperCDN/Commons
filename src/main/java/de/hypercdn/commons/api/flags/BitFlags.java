@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * The interface Bit flags.
  */
-public interface BitFlags{
+public interface BitFlags<T extends Number>{
 
 	/**
 	 * Set.
@@ -33,10 +33,17 @@ public interface BitFlags{
 	/**
 	 * Gets flags.
 	 *
-	 * @param <T> the type parameter
+	 * @param <E> the type parameter
 	 *
 	 * @return the flags
 	 */
-	<T extends BitFlags> List<T> getFlags();
+	<E extends BitFlag> List<E> getFlags();
+
+	/**
+	 * Gets value.
+	 *
+	 * @return the value
+	 */
+	T getValue();
 
 }

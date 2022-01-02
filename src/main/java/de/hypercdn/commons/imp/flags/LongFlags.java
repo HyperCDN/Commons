@@ -6,7 +6,7 @@ import de.hypercdn.commons.api.flags.BitFlags;
 /**
  * The type Long flags.
  */
-public abstract class LongFlags implements BitFlags{
+public abstract class LongFlags implements BitFlags<Long>{
 
 	private long value;
 
@@ -19,12 +19,7 @@ public abstract class LongFlags implements BitFlags{
 		this.value = value;
 	}
 
-	/**
-	 * Get value long.
-	 *
-	 * @return the long
-	 */
-	public long getValue(){
+	public Long getValue(){
 		return value;
 	}
 
@@ -44,7 +39,7 @@ public abstract class LongFlags implements BitFlags{
 
 	@Override
 	public boolean has(BitFlag flag){
-		return ((value >> flag.getBitPos()) & 1) == 1;
+		return ((value >> flag.getBitPos()) & 1L) == 1;
 	}
 
 }
