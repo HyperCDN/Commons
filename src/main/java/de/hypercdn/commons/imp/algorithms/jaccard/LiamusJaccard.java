@@ -4,15 +4,9 @@ import de.hypercdn.commons.api.algorithms.StringSimilarity;
 import de.hypercdn.commons.util.BitArray64;
 import de.hypercdn.commons.util.StringUtil;
 
-/**
- * The type Liamus jaccard.
- */
 public class LiamusJaccard implements StringSimilarity{
 
 	public static final LiamusJaccard instance = new LiamusJaccard();
-	/**
-	 * The constant JACCARD_ARRAY_64WORDS.
-	 */
 	public static int JACCARD_ARRAY_64WORDS = 16;
 
 	@Override
@@ -30,14 +24,6 @@ public class LiamusJaccard implements StringSimilarity{
 		return coefficient(stringABits, stringBBits);
 	}
 
-	/**
-	 * Coefficient float.
-	 *
-	 * @param a the a
-	 * @param b the b
-	 *
-	 * @return the float
-	 */
 	public float coefficient(BitArray64 a, BitArray64 b){
 		return a.popCntJaccard(b);
 	}

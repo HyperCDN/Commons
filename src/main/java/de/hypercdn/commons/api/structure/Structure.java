@@ -11,19 +11,8 @@ import org.slf4j.event.Level;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * The interface Structure.
- */
 public interface Structure{
 
-	/**
-	 * Test status log.
-	 *
-	 * @param structure the structure
-	 * @param object    the object
-	 *
-	 * @return the status log
-	 */
 	static StatusLog test(Structure structure, Object object){
 		Objects.requireNonNull(structure);
 		Objects.requireNonNull(object);
@@ -45,14 +34,6 @@ public interface Structure{
 		return new StatusLog("Failed to test unexpected entity type", Level.ERROR);
 	}
 
-	/**
-	 * Test map status log.
-	 *
-	 * @param complex   the complex
-	 * @param Inherited the inherited
-	 *
-	 * @return the status log
-	 */
 	static StatusLog testMap(Complex complex, Inherited Inherited){
 		Objects.requireNonNull(complex);
 		Objects.requireNonNull(Inherited);
@@ -79,14 +60,6 @@ public interface Structure{
 	}
 
 
-	/**
-	 * Test array status log.
-	 *
-	 * @param simple    the simple
-	 * @param Inherited the inherited
-	 *
-	 * @return the status log
-	 */
 	static StatusLog testArray(Simple simple, Inherited Inherited){
 		Objects.requireNonNull(simple);
 		Objects.requireNonNull(Inherited);
@@ -101,15 +74,6 @@ public interface Structure{
 		return new StatusLog().addChildren(resultTmp);
 	}
 
-	/**
-	 * Test object status log.
-	 *
-	 * @param simple    the simple
-	 * @param Inherited the inherited
-	 * @param fromArray the from array
-	 *
-	 * @return the status log
-	 */
 	static StatusLog testObject(Simple simple, Inherited Inherited, boolean fromArray){
 		Objects.requireNonNull(simple);
 		Objects.requireNonNull(Inherited);
@@ -123,14 +87,6 @@ public interface Structure{
 		return new StatusLog("Object \"" + object + "\" does not match expectations", Level.ERROR);
 	}
 
-	/**
-	 * Test field status log.
-	 *
-	 * @param field     the field
-	 * @param Inherited the inherited
-	 *
-	 * @return the status log
-	 */
 	static StatusLog testField(Field field, Inherited Inherited){
 		Objects.requireNonNull(field);
 		Objects.requireNonNull(Inherited);

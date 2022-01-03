@@ -3,18 +3,10 @@ package de.hypercdn.commons.imp.flags;
 import de.hypercdn.commons.api.flags.BitFlag;
 import de.hypercdn.commons.api.flags.BitFlags;
 
-/**
- * The type Long flags.
- */
 public abstract class LongFlags implements BitFlags<Long>{
 
 	private long value;
 
-	/**
-	 * Instantiates a new Long flags.
-	 *
-	 * @param value the value
-	 */
 	public LongFlags(long value){
 		this.value = value;
 	}

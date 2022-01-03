@@ -7,11 +7,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-/**
- * The type Generic rate limiter.
- */
 public class GenericRateLimiter implements RateLimiter{
 
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	private final TimeUnit refillUnit;
 	private final long refillInterval;
 	private final long nsWindowSize;
@@ -20,14 +18,6 @@ public class GenericRateLimiter implements RateLimiter{
 	private int underflowFactor = 2;
 	private long nsPerUsage;
 
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
-
-	/**
-	 * Instantiates a new Generic rate limiter.
-	 *
-	 * @param refillUnit     the refill unit
-	 * @param refillInterval the refill interval
-	 */
 	public GenericRateLimiter(TimeUnit refillUnit, long refillInterval){
 		Objects.requireNonNull(refillUnit);
 		this.refillUnit = refillUnit;
@@ -85,7 +75,7 @@ public class GenericRateLimiter implements RateLimiter{
 
 	@Override
 	public synchronized void drainBy(long amount) throws RateLimiterException{
-		logger.trace("Trying to drain rate limiter " + this +" by "+amount);
+		logger.trace("Trying to drain rate limiter " + this + " by " + amount);
 		long current = System.nanoTime();
 		// lower limit
 		if(filler < current){

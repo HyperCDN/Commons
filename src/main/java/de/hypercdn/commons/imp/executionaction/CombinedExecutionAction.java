@@ -12,13 +12,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.*;
 
-/**
- * The type Combined execution action.
- *
- * @param <OUT1>   the type parameter
- * @param <OUT2>   the type parameter
- * @param <MAPPED> the type parameter
- */
 public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAction<Void, MAPPED>{
 
 	private final ExecutionAction<?, OUT1> executionAction1;
@@ -29,13 +22,6 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 	private volatile boolean failed = false;
 	private volatile long lastExecutionDuration = -1L;
 
-	/**
-	 * Instantiates a new Combined execution action.
-	 *
-	 * @param executionAction1 the execution action 1
-	 * @param executionAction2 the execution action 2
-	 * @param accumulator      the accumulator
-	 */
 	public CombinedExecutionAction(ExecutionAction<?, OUT1> executionAction1, ExecutionAction<?, OUT2> executionAction2, BiFunction<? super OUT1, ? super OUT2, ? extends MAPPED> accumulator){
 		this.executionAction1 = executionAction1;
 		this.executionAction2 = executionAction2;

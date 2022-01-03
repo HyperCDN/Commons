@@ -12,22 +12,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
-/**
- * The type Generic block file.
- */
 public class GenericBlockFile implements BlockFile{
 
-	/**
-	 * The constant DEFAULT_BLOCK_SIZE.
-	 */
 	public static final int DEFAULT_BLOCK_SIZE = 16;
-	/**
-	 * The constant FILE_INDICATOR.
-	 */
 	public static final String FILE_INDICATOR = "GBF";
-	/**
-	 * The constant RESERVED_HEADER_BLOCKS.
-	 */
 	public static final int RESERVED_HEADER_BLOCKS = 16;
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -43,30 +31,10 @@ public class GenericBlockFile implements BlockFile{
 		this.headerSizeBytes = FILE_INDICATOR.getBytes(StandardCharsets.UTF_8).length + Integer.BYTES + RESERVED_HEADER_BLOCKS * blockByteSize;
 	}
 
-	/**
-	 * With file block file.
-	 *
-	 * @param file the file
-	 *
-	 * @return the block file
-	 *
-	 * @throws IOException the io exception
-	 */
 	public static BlockFile withFile(File file) throws IOException{
 		return withFile(file, DEFAULT_BLOCK_SIZE, null);
 	}
 
-	/**
-	 * With file block file.
-	 *
-	 * @param file          the file
-	 * @param blockByteSize the block byte size
-	 * @param headers       the headers
-	 *
-	 * @return the block file
-	 *
-	 * @throws IOException the io exception
-	 */
 	public static BlockFile withFile(File file, int blockByteSize, byte[][] headers) throws IOException{
 		var fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
 		if(fileChannel.size() > 0){
@@ -135,7 +103,7 @@ public class GenericBlockFile implements BlockFile{
 				break;
 			}
 			read += rc;
-			logger.trace("Reading data block at position " + pos + " with an offset of " + offset + " bytes from the file channel " + fileChannel + " Currently read bytes "+read);
+			logger.trace("Reading data block at position " + pos + " with an offset of " + offset + " bytes from the file channel " + fileChannel + " Currently read bytes " + read);
 		}
 		return byteBuffer.array();
 	}
@@ -154,7 +122,7 @@ public class GenericBlockFile implements BlockFile{
 		var byteBuffer = ByteBuffer.wrap(data);
 		while(written < data.length){
 			written += fileChannel.write(byteBuffer, offset * Byte.BYTES + blockByteSize * pos * Byte.BYTES + written * Byte.BYTES);
-			logger.trace("Writing " + data.length + " bytes at position " + pos + " with an offset of " + offset + " to the file channel " + fileChannel + " Currently written bytes "+written);
+			logger.trace("Writing " + data.length + " bytes at position " + pos + " with an offset of " + offset + " to the file channel " + fileChannel + " Currently written bytes " + written);
 		}
 		return written == data.length;
 	}

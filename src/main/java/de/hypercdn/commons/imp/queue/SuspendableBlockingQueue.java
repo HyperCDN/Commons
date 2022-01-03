@@ -7,28 +7,15 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-/**
- * The type Suspendable blocking queue.
- *
- * @param <T> the type parameter
- */
 public class SuspendableBlockingQueue<T> implements Suspendable, SimpleQueue<T>{
 
 	private final Queue<T> queue;
 	private boolean isSuspended = false;
 
-	/**
-	 * Instantiates a new Suspendable blocking queue.
-	 */
 	public SuspendableBlockingQueue(){
 		this(new LinkedBlockingQueue<>());
 	}
 
-	/**
-	 * Instantiates a new Suspendable blocking queue.
-	 *
-	 * @param queue the queue
-	 */
 	public SuspendableBlockingQueue(Queue<T> queue){
 		Objects.requireNonNull(queue);
 		this.queue = queue;

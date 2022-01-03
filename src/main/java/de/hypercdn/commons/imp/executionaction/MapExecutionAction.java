@@ -9,24 +9,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * The type Map execution action.
- *
- * @param <IN>     the type parameter
- * @param <OUT>    the type parameter
- * @param <MAPPED> the type parameter
- */
 public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction<IN, MAPPED>{
 
 	private final ExecutionAction<IN, OUT> originalAction;
 	private final Function<? super OUT, ? extends MAPPED> mapping;
 
-	/**
-	 * Instantiates a new Map execution action.
-	 *
-	 * @param originalAction the original action
-	 * @param mapping        the mapping
-	 */
 	public MapExecutionAction(ExecutionAction<IN, OUT> originalAction, Function<? super OUT, ? extends MAPPED> mapping){
 		Objects.requireNonNull(originalAction);
 		Objects.requireNonNull(mapping);

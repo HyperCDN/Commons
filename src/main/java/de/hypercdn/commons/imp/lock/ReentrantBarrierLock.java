@@ -6,9 +6,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-/**
- * A barrier but wrapped as a lock
- */
 public class ReentrantBarrierLock implements Lock{
 
 	private final ReentrantBarrier reentrantBarrier = new ReentrantBarrier();

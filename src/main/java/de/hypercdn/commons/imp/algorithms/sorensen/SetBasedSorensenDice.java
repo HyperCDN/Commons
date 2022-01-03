@@ -5,9 +5,6 @@ import de.hypercdn.commons.util.StringUtil;
 
 import java.util.HashSet;
 
-/**
- * The type Set based sorensen dice.
- */
 public class SetBasedSorensenDice implements StringSimilarity{
 
 	public static final SetBasedSorensenDice instance = new SetBasedSorensenDice();

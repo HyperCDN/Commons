@@ -12,12 +12,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * The type Generic execution action.
- *
- * @param <IN>  the type parameter
- * @param <OUT> the type parameter
- */
 public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -28,17 +22,8 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 	private BooleanSupplier check = () -> true;
 	private volatile long lastExecutionDuration = -1L;
 
-	/**
-	 * Instantiates a new Generic execution action.
-	 */
 	public GenericExecutionAction(){}
 
-	/**
-	 * Instantiates a new Generic execution action.
-	 *
-	 * @param inputSupplier  the input supplier
-	 * @param actionFunction the action function
-	 */
 	public GenericExecutionAction(Supplier<IN> inputSupplier, Function<IN, OUT> actionFunction){
 		Objects.requireNonNull(inputSupplier);
 		Objects.requireNonNull(actionFunction);

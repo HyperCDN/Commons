@@ -7,25 +7,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * The type Generic config.
- */
 public class GenericConfig implements Config{
 
 	private final Map<String, Object> structure;
 
-	/**
-	 * Instantiates a new Generic config.
-	 */
 	public GenericConfig(){
 		this(new HashMap<>());
 	}
 
-	/**
-	 * Instantiates a new Generic config.
-	 *
-	 * @param structure the structure
-	 */
 	public GenericConfig(Map<String, Object> structure){
 		Objects.requireNonNull(structure);
 		this.structure = structure;
