@@ -9,6 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Reentrant implementation of a barrier
+ */
 public class ReentrantBarrier implements Barrier{
 
 	private final BlockingQueue<Thread> callQueue = new LinkedBlockingQueue<>();

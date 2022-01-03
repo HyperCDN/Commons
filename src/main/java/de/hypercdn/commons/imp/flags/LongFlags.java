@@ -3,6 +3,9 @@ package de.hypercdn.commons.imp.flags;
 import de.hypercdn.commons.api.flags.BitFlag;
 import de.hypercdn.commons.api.flags.BitFlags;
 
+/**
+ * Abstract implementation of BitFlags based on a long
+ */
 public abstract class LongFlags implements BitFlags<Long>{
 
 	private long value;

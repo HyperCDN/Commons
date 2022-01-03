@@ -9,6 +9,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Implementation of a mapped execution action
+ *
+ * @param <IN>     type
+ * @param <OUT>    type
+ * @param <MAPPED> type
+ */
 public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction<IN, MAPPED>{
 
 	private final ExecutionAction<IN, OUT> originalAction;

@@ -2,6 +2,9 @@ package de.hypercdn.commons.util.check;
 
 import java.util.Objects;
 
+/**
+ * Represents the result of a check
+ */
 public class CheckResult{
 
 	private final boolean ok;

@@ -1,12 +1,16 @@
 package de.hypercdn.commons.imp.lock;
 
+import de.hypercdn.commons.api.wrap.Wrap;
 import de.hypercdn.commons.imp.barrier.ReentrantBarrier;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-public class ReentrantBarrierLock implements Lock{
+/**
+ * Implementation of a barrier wrapped as lock
+ */
+public class ReentrantBarrierLock implements Lock, Wrap<ReentrantBarrier>{
 
 	private final ReentrantBarrier reentrantBarrier = new ReentrantBarrier();
 
@@ -38,6 +42,11 @@ public class ReentrantBarrierLock implements Lock{
 	@Override
 	public Condition newCondition(){
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public ReentrantBarrier getWrapped(){
+		return reentrantBarrier;
 	}
 
 }

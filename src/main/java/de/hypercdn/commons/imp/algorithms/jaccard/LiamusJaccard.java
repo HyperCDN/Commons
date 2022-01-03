@@ -4,6 +4,9 @@ import de.hypercdn.commons.api.algorithms.StringSimilarity;
 import de.hypercdn.commons.util.BitArray64;
 import de.hypercdn.commons.util.StringUtil;
 
+/**
+ * LiamusJaccard algorithm to calculare string similarity
+ */
 public class LiamusJaccard implements StringSimilarity{
 
 	public static final LiamusJaccard instance = new LiamusJaccard();

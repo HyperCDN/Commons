@@ -1,5 +1,8 @@
 package de.hypercdn.commons.imp.ratelimiter;
 
+/**
+ * Implementation of a ratelimiter exception
+ */
 public class RateLimiterException extends RuntimeException{
 
 	public RateLimiterException(String message){

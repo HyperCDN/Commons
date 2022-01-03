@@ -8,6 +8,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Generic implementation of a barrier
+ */
 public class GenericBarrier implements Barrier{
 
 	private final int timeoutmsDelay;

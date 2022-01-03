@@ -5,6 +5,9 @@ import de.hypercdn.commons.util.StringUtil;
 
 import java.util.HashSet;
 
+/**
+ * SetBasedJaccard algorithm to calculate string similarity
+ */
 public class SetBasedJaccard implements StringSimilarity{
 
 	public static final SetBasedJaccard instance = new SetBasedJaccard();

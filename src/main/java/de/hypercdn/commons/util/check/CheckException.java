@@ -1,5 +1,8 @@
 package de.hypercdn.commons.util.check;
 
+/**
+ * Represents an exception internally used to create check results
+ */
 public class CheckException extends RuntimeException{
 
 	private final Object object;

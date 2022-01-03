@@ -6,6 +6,12 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+/**
+ * Generic provider implementation
+ *
+ * @param <I> input type
+ * @param <O> output type
+ */
 public class GenericProvider<I, O> implements Provider<I, O>{
 
 	private final Function<I, O> supplier;

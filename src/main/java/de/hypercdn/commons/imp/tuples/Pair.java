@@ -1,5 +1,11 @@
 package de.hypercdn.commons.imp.tuples;
 
+/**
+ * Tuple representing a pair
+ *
+ * @param <V1> type
+ * @param <V2> type
+ */
 public class Pair<V1, V2>{
 
 	private final V1 v1;

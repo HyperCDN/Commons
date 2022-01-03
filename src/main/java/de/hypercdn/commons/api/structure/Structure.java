@@ -11,8 +11,19 @@ import org.slf4j.event.Level;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a data structure
+ */
 public interface Structure{
 
+	/**
+	 * Tests the supplied data for the provided data structure
+	 *
+	 * @param structure data structure
+	 * @param object    to test
+	 *
+	 * @return status log containing the test results
+	 */
 	static StatusLog test(Structure structure, Object object){
 		Objects.requireNonNull(structure);
 		Objects.requireNonNull(object);
@@ -34,6 +45,14 @@ public interface Structure{
 		return new StatusLog("Failed to test unexpected entity type", Level.ERROR);
 	}
 
+	/**
+	 * Tests the supplied inherited data containing a mao for the provided specification for complex objects
+	 *
+	 * @param complex   specification
+	 * @param Inherited data
+	 *
+	 * @return status log containing the test results
+	 */
 	static StatusLog testMap(Complex complex, Inherited Inherited){
 		Objects.requireNonNull(complex);
 		Objects.requireNonNull(Inherited);
@@ -59,7 +78,14 @@ public interface Structure{
 		}
 	}
 
-
+	/**
+	 * Tests the supplied inherited data containing an array for the provided specification for simple objects
+	 *
+	 * @param simple    specification
+	 * @param Inherited data
+	 *
+	 * @return status log containing the test results
+	 */
 	static StatusLog testArray(Simple simple, Inherited Inherited){
 		Objects.requireNonNull(simple);
 		Objects.requireNonNull(Inherited);
@@ -74,6 +100,15 @@ public interface Structure{
 		return new StatusLog().addChildren(resultTmp);
 	}
 
+	/**
+	 * Tests the supplied inherited data for the provided specification for simple objects
+	 *
+	 * @param simple    specification
+	 * @param Inherited data
+	 * @param fromArray if the supplied interhited data is inside an array
+	 *
+	 * @return status log containing the test results
+	 */
 	static StatusLog testObject(Simple simple, Inherited Inherited, boolean fromArray){
 		Objects.requireNonNull(simple);
 		Objects.requireNonNull(Inherited);
@@ -87,6 +122,14 @@ public interface Structure{
 		return new StatusLog("Object \"" + object + "\" does not match expectations", Level.ERROR);
 	}
 
+	/**
+	 * Tests the supplied inherited data for the provided field specification
+	 *
+	 * @param field     specification
+	 * @param Inherited data
+	 *
+	 * @return status log containing the test results
+	 */
 	static StatusLog testField(Field field, Inherited Inherited){
 		Objects.requireNonNull(field);
 		Objects.requireNonNull(Inherited);

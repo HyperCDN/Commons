@@ -12,6 +12,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.*;
 
+/**
+ * Creates a new instance of a combined execution action
+ *
+ * @param <OUT1>   type
+ * @param <OUT2>   type
+ * @param <MAPPED> type
+ */
 public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAction<Void, MAPPED>{
 
 	private final ExecutionAction<?, OUT1> executionAction1;

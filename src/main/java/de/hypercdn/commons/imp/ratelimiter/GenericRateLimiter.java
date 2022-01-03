@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Generic rate limiter implementation
+ */
 public class GenericRateLimiter implements RateLimiter{
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());

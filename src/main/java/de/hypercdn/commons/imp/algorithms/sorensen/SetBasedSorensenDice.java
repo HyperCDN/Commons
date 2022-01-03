@@ -5,6 +5,9 @@ import de.hypercdn.commons.util.StringUtil;
 
 import java.util.HashSet;
 
+/**
+ * SetBasedSorensenDice algorithm to calculate string similarity
+ */
 public class SetBasedSorensenDice implements StringSimilarity{
 
 	public static final SetBasedSorensenDice instance = new SetBasedSorensenDice();

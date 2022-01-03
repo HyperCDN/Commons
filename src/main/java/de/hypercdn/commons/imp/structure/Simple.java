@@ -6,6 +6,9 @@ import de.hypercdn.commons.util.check.Check;
 
 import java.util.function.Predicate;
 
+/**
+ * Represents a simple data structure (object or array)
+ */
 public class Simple{
 
 	private Class<?> tClass;
@@ -25,14 +28,31 @@ public class Simple{
 		this.structure = structure;
 	}
 
+	/**
+	 * Returns the class of the data type
+	 *
+	 * @return type
+	 */
 	public Class<?> getTClass(){
 		return tClass;
 	}
 
+	/**
+	 * Returns the predicate used to test the values of this structure
+	 *
+	 * @return predicate
+	 */
 	public Predicate<Inherited> getPredicate(){
 		return predicate;
 	}
 
+	/**
+	 * Adds a predicate to the currently set one to test values of this structure
+	 *
+	 * @param predicate to add
+	 *
+	 * @return current instance
+	 */
 	public Simple addPredicate(Predicate<Inherited> predicate){
 		if(this.predicate == null){
 			this.predicate = predicate;
@@ -43,6 +63,13 @@ public class Simple{
 		return this;
 	}
 
+	/**
+	 * Adds a check to the predicates used to test values of this structure
+	 *
+	 * @param check to add
+	 *
+	 * @return current instance
+	 */
 	public Simple addCheck(Check<Inherited> check){
 		addPredicate(i -> {
 			try{
@@ -57,6 +84,11 @@ public class Simple{
 		return this;
 	}
 
+	/**
+	 * Returns the sub structure of this type
+	 *
+	 * @return structure
+	 */
 	public Structure getStructure(){
 		return structure;
 	}

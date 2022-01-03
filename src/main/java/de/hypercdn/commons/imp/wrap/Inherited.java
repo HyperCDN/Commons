@@ -2,7 +2,6 @@ package de.hypercdn.commons.imp.wrap;
 
 public class Inherited{
 
-
 	private final Inherited parent;
 	private final Object object;
 

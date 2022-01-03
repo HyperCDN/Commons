@@ -2,6 +2,9 @@ package de.hypercdn.commons.imp.algorithms.checksum;
 
 import java.util.zip.Checksum;
 
+/**
+ * CRC64 implementation
+ */
 public class CRC64 implements Checksum{
 
 	private static final long[] LOOKUP;
@@ -29,6 +32,11 @@ public class CRC64 implements Checksum{
 		sum = (sum >>> 8) ^ LOOKUP[((int) sum ^ b) & 0xff];
 	}
 
+	/**
+	 * Overload for {@link #update(int)} to accept vararg
+	 *
+	 * @param bytes to update
+	 */
 	public void update(byte... bytes){
 		for(var b : bytes){
 			update(b);

@@ -8,6 +8,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
+/**
+ * Used to create human-readable predicate exceptions
+ *
+ * @param <T> of check
+ */
 public class Check<T>{
 
 	private final Predicate<T> predicate;
@@ -25,6 +30,11 @@ public class Check<T>{
 		this.description = description;
 	}
 
+	/**
+	 * Returns an instance of a check
+	 *
+	 * @return new check
+	 */
 	public static Check<Object> that(){
 		return new Check<>((t) -> true, "");
 	}
@@ -59,6 +69,13 @@ public class Check<T>{
 		this.orNext = next;
 	}
 
+	/**
+	 * Returns the predicate as string
+	 *
+	 * @param formatted whether the output needs to be formatted
+	 *
+	 * @return predicate as string
+	 */
 	public String asString(boolean formatted){
 		return getBase().asString(formatted, 0);
 	}
@@ -85,6 +102,11 @@ public class Check<T>{
 		return string.toString();
 	}
 
+	/**
+	 * Perform the checks on the provided object
+	 *
+	 * @param t object to check
+	 */
 	public void with(T t){
 		var result = getBase().at(t);
 		if(!result.isOk()){
@@ -130,6 +152,14 @@ public class Check<T>{
 		return new CheckResult(description.toString());
 	}
 
+	/**
+	 * AND Add a predicate with a description to the check
+	 *
+	 * @param predicate   to add
+	 * @param description of the predicate
+	 *
+	 * @return new check
+	 */
 	public Check<T> and(Predicate<T> predicate, String description){
 		Objects.requireNonNull(predicate);
 		Objects.requireNonNull(description);
@@ -138,10 +168,23 @@ public class Check<T>{
 		return and.setParent(this);
 	}
 
+	/**
+	 * Add an or predicate to the check
+	 *
+	 * @return new check
+	 */
 	public Check<T> or(){
 		return or((i) -> true, "");
 	}
 
+	/**
+	 * OR Add a predicate with a description to the check
+	 *
+	 * @param predicate   to add
+	 * @param description of the predicate
+	 *
+	 * @return new check
+	 */
 	public Check<T> or(Predicate<T> predicate, String description){
 		Objects.requireNonNull(predicate);
 		Objects.requireNonNull(description);
@@ -150,102 +193,238 @@ public class Check<T>{
 		return or.setParent(this);
 	}
 
-	//https://haste.hypercdn.de/yayohuxele.typescript
-
+	/**
+	 * Add an object cast to the check
+	 *
+	 * @param oClass to cast to
+	 * @param <O>
+	 *
+	 * @return new check
+	 */
 	public <O> Check<O> as(Class<O> oClass){
 		Objects.requireNonNull(oClass);
 		return (Check<O>) this;
 	}
 
+	/**
+	 * Add an assignable check for the provided class
+	 *
+	 * @param clazz to check
+	 * @param <O>
+	 *
+	 * @return new check
+	 */
 	public <O> Check<O> isAssignableFrom(Class<O> clazz){
 		Objects.requireNonNull(clazz);
 		return as(clazz).and(r -> clazz.isAssignableFrom(r.getClass()), "is assignable from " + clazz.getSimpleName());
 	}
 
+	/**
+	 * Add a check if the object is blank
+	 *
+	 * @return new check
+	 */
 	public Check<T> isBlank(){
 		return and(o -> o instanceof String string && string.isBlank(), "is blank");
 	}
 
+	/**
+	 * Add a check if the object is not blank
+	 *
+	 * @return new check
+	 */
 	public Check<T> isNotBlank(){
 		return and(o -> o instanceof String string && !string.isBlank(), "is not blank");
 	}
 
+	/**
+	 * Add a check if the object is null
+	 *
+	 * @return new check
+	 */
 	public Check<T> isNull(){
 		return and(Objects::isNull, "is null");
 	}
 
+	/**
+	 * Add a check if the object is not null
+	 *
+	 * @return new check
+	 */
 	public Check<T> isNonNull(){
 		return and(Objects::nonNull, "is non null");
 	}
 
+	/**
+	 * Add a check if the object is equal to the specified value
+	 *
+	 * @param t to equal
+	 *
+	 * @return new check
+	 */
 	public Check<T> isEqualTo(T t){
 		Objects.requireNonNull(t);
 		return and(t::equals, "is equal to " + t);
 	}
 
+	/**
+	 * Add a check if the object is not equal to the specified value
+	 *
+	 * @param t to not equal
+	 *
+	 * @return new check
+	 */
 	public Check<T> isNotEqualTo(T t){
 		Objects.requireNonNull(t);
 		return and(o -> !t.equals(o), "is not equal to " + t);
 	}
 
+	/**
+	 * Add a check if the object is equal to any of the specified values
+	 *
+	 * @param ts to equal any of
+	 *
+	 * @return new check
+	 */
 	public Check<T> doesEqualToAnyOf(T... ts){
 		Objects.requireNonNull(ts);
 		return doesEqualToAnyOf(Set.of(ts));
 	}
 
+	/**
+	 * Add a check if the object is equal to any of the specified values
+	 *
+	 * @param t to equal any of
+	 *
+	 * @return new check
+	 */
 	public Check<T> doesEqualToAnyOf(Set<T> t){
 		Objects.requireNonNull(t);
 		return and(t::contains, "equals any of " + Arrays.toString(t.toArray()));
 	}
 
+	/**
+	 * Add a check if the object is not equal to any of the specified values
+	 *
+	 * @param ts to not equal any of
+	 *
+	 * @return new check
+	 */
 	public Check<T> doesNotEqualToAnyOf(T... ts){
 		Objects.requireNonNull(ts);
 		return doesNotEqualToAnyOf(Set.of(ts));
 	}
 
+	/**
+	 * Add a check if the object is not equal to any of the specified values
+	 *
+	 * @param t to not equal any of
+	 *
+	 * @return new check
+	 */
 	public Check<T> doesNotEqualToAnyOf(Set<T> t){
 		Objects.requireNonNull(t);
 		return and(o -> !t.contains(o), "does not equal any of " + Arrays.toString(t.toArray()));
 	}
 
+	/**
+	 * Add a check if the object is larger than the specified value
+	 *
+	 * @param comparable value
+	 *
+	 * @return new check
+	 */
 	public Check<T> isLargerThan(Comparable<T> comparable){
 		Objects.requireNonNull(comparable);
 		return and(o -> comparable.compareTo(o) < 0, "is larger than " + comparable);
 	}
 
+	/**
+	 * Add a check if the object is smaller than the specified value
+	 *
+	 * @param comparable value
+	 *
+	 * @return new check
+	 */
 	public Check<T> isSmallerThan(Comparable<T> comparable){
 		Objects.requireNonNull(comparable);
 		return and(o -> comparable.compareTo(o) > 0, "is smaller than" + comparable);
 	}
 
+	/**
+	 * Add a check if the object is within the specified range
+	 *
+	 * @param min value
+	 * @param max value
+	 *
+	 * @return new check
+	 */
 	public Check<T> isInRangeOf(Comparable<T> min, Comparable<T> max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
 		return and(o -> min.compareTo(o) <= 0 && max.compareTo(o) >= 0, "is in range of " + min + " to " + max);
 	}
 
+	/**
+	 * Add a check if the object is outside the specified range
+	 *
+	 * @param min value
+	 * @param max value
+	 *
+	 * @return new check
+	 */
 	public Check<T> isOutOfRangeOf(Comparable<T> min, Comparable<T> max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
 		return and(o -> min.compareTo(o) > 0 && max.compareTo(o) < 0, "is not in range of " + min + " to " + max);
 	}
 
+	/**
+	 * Add a check if the object is larger than specified
+	 *
+	 * @param number to check against
+	 *
+	 * @return new check
+	 */
 	public Check<T> isLargerThan(Number number){
 		Objects.requireNonNull(number);
 		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) > 0, "is larger than " + number);
 	}
 
+	/**
+	 * Add a check if the object is smaller than specified
+	 *
+	 * @param number to check against
+	 *
+	 * @return new check
+	 */
 	public Check<T> isSmallerThan(Number number){
 		Objects.requireNonNull(number);
 		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) < 0, "is smaller than " + number);
 	}
 
+	/**
+	 * Add a check if the object is within the specified range
+	 *
+	 * @param min value
+	 * @param max value
+	 *
+	 * @return new check
+	 */
 	public Check<T> isInRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
 		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) >= 0 && NumberUtil.compare(oNumber, max) <= 0, "is in range of " + min + " to " + max);
 	}
 
+	/**
+	 * Add a check if the object is outside the specified range
+	 *
+	 * @param min value
+	 * @param max value
+	 *
+	 * @return new check
+	 */
 	public Check<T> isOutOfRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);

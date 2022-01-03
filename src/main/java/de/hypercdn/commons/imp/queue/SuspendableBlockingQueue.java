@@ -1,13 +1,18 @@
 package de.hypercdn.commons.imp.queue;
 
 import de.hypercdn.commons.api.properties.misc.Suspendable;
-import de.hypercdn.commons.api.queue.SimpleQueue;
+import de.hypercdn.commons.api.queue.SimpleBlockingQueue;
 
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class SuspendableBlockingQueue<T> implements Suspendable, SimpleQueue<T>{
+/**
+ * Implementation of a suspendable blocking queue
+ *
+ * @param <T>
+ */
+public class SuspendableBlockingQueue<T> implements Suspendable, SimpleBlockingQueue<T>{
 
 	private final Queue<T> queue;
 	private boolean isSuspended = false;
@@ -52,11 +57,6 @@ public class SuspendableBlockingQueue<T> implements Suspendable, SimpleQueue<T>{
 	}
 
 	@Override
-	public Queue<T> getWrappedQueue(){
-		return queue;
-	}
-
-	@Override
 	public synchronized boolean isSuspended(){
 		return isSuspended;
 	}
@@ -73,6 +73,11 @@ public class SuspendableBlockingQueue<T> implements Suspendable, SimpleQueue<T>{
 		var wasSuspended = isSuspended;
 		isSuspended = false;
 		return wasSuspended;
+	}
+
+	@Override
+	public Queue<T> getWrapped(){
+		return queue;
 	}
 
 }

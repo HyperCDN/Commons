@@ -1,5 +1,12 @@
 package de.hypercdn.commons.imp.tuples;
 
+/**
+ * Tuple representing a triple
+ *
+ * @param <V1> type
+ * @param <V2> type
+ * @param <V3> type
+ */
 public class Triple<V1, V2, V3>{
 
 	private final V1 v1;

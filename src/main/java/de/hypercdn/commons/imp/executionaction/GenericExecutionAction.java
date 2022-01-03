@@ -12,6 +12,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Generic implementation of an execution action
+ *
+ * @param <IN>  type
+ * @param <OUT> type
+ */
 public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());

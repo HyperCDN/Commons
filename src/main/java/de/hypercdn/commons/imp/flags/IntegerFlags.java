@@ -3,6 +3,9 @@ package de.hypercdn.commons.imp.flags;
 import de.hypercdn.commons.api.flags.BitFlag;
 import de.hypercdn.commons.api.flags.BitFlags;
 
+/**
+ * Abstract implementation of BitFlags based on an integer
+ */
 public abstract class IntegerFlags implements BitFlags<Integer>{
 
 	private int value;

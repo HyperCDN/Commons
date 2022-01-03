@@ -1,7 +1,6 @@
 package de.hypercdn.commons.api.properties.serialization;
 
-public interface Serializable{
-
-	byte[] serialize();
-
-}
+/**
+ * Indicates that an object can be serialized
+ */
+public interface Serializable{}

@@ -11,6 +11,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Implements a chained execution action
+ *
+ * @param <IN>    type
+ * @param <TRANS> type
+ * @param <OUT>   type
+ */
 public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<IN, OUT>{
 
 	private final ExecutionAction<IN, TRANS> firstExecutionAction;

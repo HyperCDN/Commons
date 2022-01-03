@@ -12,6 +12,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
+/**
+ * Generic implementation of a block file
+ */
 public class GenericBlockFile implements BlockFile{
 
 	public static final int DEFAULT_BLOCK_SIZE = 16;
@@ -31,10 +34,30 @@ public class GenericBlockFile implements BlockFile{
 		this.headerSizeBytes = FILE_INDICATOR.getBytes(StandardCharsets.UTF_8).length + Integer.BYTES + RESERVED_HEADER_BLOCKS * blockByteSize;
 	}
 
+	/**
+	 * Loads a BlockFile from a file
+	 *
+	 * @param file location
+	 *
+	 * @return BlockFile
+	 *
+	 * @throws IOException on exception
+	 */
 	public static BlockFile withFile(File file) throws IOException{
 		return withFile(file, DEFAULT_BLOCK_SIZE, null);
 	}
 
+	/**
+	 * Loads or creates a new BlockFile with the specified parameters
+	 *
+	 * @param file          location
+	 * @param blockByteSize expected block size
+	 * @param headers       content
+	 *
+	 * @return BlockFile
+	 *
+	 * @throws IOException on exception
+	 */
 	public static BlockFile withFile(File file, int blockByteSize, byte[][] headers) throws IOException{
 		var fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
 		if(fileChannel.size() > 0){

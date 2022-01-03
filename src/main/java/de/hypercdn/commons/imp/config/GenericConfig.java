@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Generic implementation of a config
+ */
 public class GenericConfig implements Config{
 
 	private final Map<String, Object> structure;

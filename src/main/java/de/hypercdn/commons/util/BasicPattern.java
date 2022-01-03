@@ -2,6 +2,9 @@ package de.hypercdn.commons.util;
 
 import java.util.regex.Pattern;
 
+/**
+ * Util class containing basic patterns
+ */
 public class BasicPattern{
 
 	public static final Pattern DOT_PATTERN = Pattern.compile("\\.");

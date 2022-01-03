@@ -2,6 +2,9 @@ package de.hypercdn.commons.util;
 
 import java.util.Arrays;
 
+/**
+ * BitArray64
+ */
 public class BitArray64{
 
 	private final long[] words;

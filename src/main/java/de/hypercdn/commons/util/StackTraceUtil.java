@@ -1,9 +1,17 @@
 package de.hypercdn.commons.util;
 
+/**
+ * Util class for working with stack traces
+ */
 public class StackTraceUtil{
 
 	private StackTraceUtil(){}
 
+	/**
+	 * Returns a stacktrace at the current call position
+	 *
+	 * @return stacktrace
+	 */
 	public static StackTraceElement[] currentStacktrace(){
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 		StackTraceElement[] noTraceStackTrace = new StackTraceElement[stackTrace.length - 2];
@@ -11,6 +19,14 @@ public class StackTraceUtil{
 		return noTraceStackTrace;
 	}
 
+	/**
+	 * Merges two stacktraces with an identical base
+	 *
+	 * @param bottom stack
+	 * @param top    stack
+	 *
+	 * @return combined stacktrace
+	 */
 	public static StackTraceElement[] merge(StackTraceElement[] bottom, StackTraceElement[] top){
 		int difPos = top.length;
 		for(int bottomPos = 0; bottomPos < Math.min(bottom.length, top.length); bottomPos++){
