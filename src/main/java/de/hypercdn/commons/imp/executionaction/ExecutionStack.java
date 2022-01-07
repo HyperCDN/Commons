@@ -68,7 +68,7 @@ public class ExecutionStack{
 			buffer = currentStack;
 		}
 		else{
-			return null;
+			return extension;
 		}
 		if(extension != null){
 			return StackTraceUtil.merge(buffer, extension);
