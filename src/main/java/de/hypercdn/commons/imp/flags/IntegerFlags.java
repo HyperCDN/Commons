@@ -19,22 +19,22 @@ public abstract class IntegerFlags implements BitFlags<Integer>{
 	}
 
 	@Override
-	public synchronized void set(BitFlag... flags){
+	public synchronized void set(BitFlag<Integer>... flags){
 		for(var flag : flags){
-			value |= 1 << flag.getBitPos();
+			value |= flag.getRawValue();
 		}
 	}
 
 	@Override
-	public synchronized void unset(BitFlag... flags){
+	public synchronized void unset(BitFlag<Integer>... flags){
 		for(var flag : flags){
-			value &= ~(1 << flag.getBitPos());
+			value &= ~flag.getRawValue();
 		}
 	}
 
 	@Override
-	public synchronized boolean has(BitFlag flag){
-		return ((value >> flag.getBitPos()) & 1) == 1;
+	public synchronized boolean has(BitFlag<Integer> flag){
+		return (value & flag.getRawValue()) == flag.getRawValue();
 	}
 
 }

@@ -14,14 +14,14 @@ public interface BitFlags<T extends Number>{
 	 *
 	 * @param flags to set
 	 */
-	void set(BitFlag... flags);
+	void set(BitFlag<T>... flags);
 
 	/**
 	 * Disables the specified flags
 	 *
 	 * @param flags to unset
 	 */
-	void unset(BitFlag... flags);
+	void unset(BitFlag<T>... flags);
 
 	/**
 	 * Checks if a flag has been enabled
@@ -30,7 +30,7 @@ public interface BitFlags<T extends Number>{
 	 *
 	 * @return true if enabled, else false
 	 */
-	boolean has(BitFlag flag);
+	boolean has(BitFlag<T> flag);
 
 	/**
 	 * Returns a list of all available flags
@@ -39,7 +39,7 @@ public interface BitFlags<T extends Number>{
 	 *
 	 * @return list of flags
 	 */
-	<E extends BitFlag> List<E> getFlags();
+	<E extends BitFlag<T>> List<E> getFlags();
 
 	/**
 	 * Returns the numeric value used to store the flags on
