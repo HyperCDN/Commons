@@ -3,29 +3,13 @@ package de.hypercdn.commons.api.flags;
 /**
  * Represents a specific bit flag
  */
-public interface BitFlag<T extends Number>{
+public interface BitFlag{
 
 	/**
-	 * Returns the raw value for the given flag
+	 * Returns the position of which bit the flag represents
 	 *
-	 * @return raw value as T
+	 * @return position
 	 */
-	T getRawValue();
-
-	/**
-	 * Returns a new and combined bitflag
-	 *
-	 * @param other to combine
-	 * @return combined bitflag
-	 */
-	BitFlag<T> and(BitFlag<T> other);
-
-	/**
-	 * Returns a new or combined bitflag
-	 *
-	 * @param other to combine
-	 * @return combined bitflag
-	 */
-	BitFlag<T> or(BitFlag<T> other);
+	int getBitPos();
 
 }

@@ -19,22 +19,22 @@ public abstract class LongFlags implements BitFlags<Long>{
 	}
 
 	@Override
-	public synchronized void set(BitFlag<Long>... flags){
+	public synchronized void set(BitFlag... flags){
 		for(var flag : flags){
-			value |= flag.getRawValue();
+			value |= 1L << flag.getBitPos();
 		}
 	}
 
 	@Override
-	public synchronized void unset(BitFlag<Long>... flags){
+	public synchronized void unset(BitFlag... flags){
 		for(var flag : flags){
-			value &= ~flag.getRawValue();
+			value &= ~(1L << flag.getBitPos());
 		}
 	}
 
 	@Override
-	public synchronized boolean has(BitFlag<Long> flag){
-		return (value & flag.getRawValue()) == flag.getRawValue();
+	public synchronized boolean has(BitFlag flag){
+		return ((value >> flag.getBitPos()) & 1L) == 1;
 	}
 
 }
