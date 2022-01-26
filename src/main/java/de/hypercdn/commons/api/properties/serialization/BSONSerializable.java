@@ -5,13 +5,14 @@ import org.bson.Document;
 /**
  * Indicates that an object can be serialized as document through bson
  */
-public interface BSONSerializable extends Serializable{
+public interface BSONSerializable{
 
 	/**
 	 * Returns the object serialized as document
 	 *
 	 * @return serialized object
 	 */
+	@Serialize
 	Document serializeDocument();
 
 	/**
@@ -19,6 +20,7 @@ public interface BSONSerializable extends Serializable{
 	 *
 	 * @return serialized object
 	 */
+	@Serialize
 	default String serializeJSON(){
 		return serializeDocument().toJson();
 	}
