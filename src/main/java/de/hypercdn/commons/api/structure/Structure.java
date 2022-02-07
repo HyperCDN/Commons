@@ -40,6 +40,9 @@ public interface Structure{
 			return testArray(simple, new Inherited(sub.getParent(), list.toArray()));
 		}
 		else if(structure instanceof Simple simple){
+			if(simple.getStructure() != null && simple.structureIsArray()){
+				return testArray(simple, sub);
+			}
 			return testObject(simple, sub, false);
 		}
 		return new StatusLog("Failed to test unexpected entity type", Level.ERROR);
@@ -89,8 +92,12 @@ public interface Structure{
 	static StatusLog testArray(Simple simple, Inherited Inherited){
 		Objects.requireNonNull(simple);
 		Objects.requireNonNull(Inherited);
-		Object[] array = Inherited.getObject();
-		if(simple.getTClass() != null && simple.getTClass().isArray() != array.getClass().isArray()){
+		var arrayCandidate = Inherited.getObject();
+		if(!arrayCandidate.getClass().isArray()){
+			return new StatusLog("Object \"" + arrayCandidate + "\" does not match expectations", Level.ERROR);
+		}
+		var array = (Object[]) arrayCandidate;
+		if((simple.getTClass() != null && simple.getTClass().isArray() != array.getClass().isArray()) || (simple.getStructure() != null && !simple.structureIsArray())){
 			return new StatusLog("Object \"" + Arrays.toString(array) + "\" does not match expectations", Level.ERROR);
 		}
 		var resultTmp = new ArrayList<StatusLog>();

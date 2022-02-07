@@ -9,11 +9,13 @@ import java.util.function.Predicate;
 /**
  * Represents a simple data structure (object or array)
  */
-public class Simple{
+public class Simple implements Structure{
 
 	private Class<?> tClass;
 	private Predicate<Inherited> predicate;
+
 	private Structure structure;
+	private boolean structureIsArray;
 
 	public Simple(Class<?> tClass){
 		this(tClass, null);
@@ -24,8 +26,9 @@ public class Simple{
 		this.predicate = predicate;
 	}
 
-	public Simple(Structure structure){
+	public Simple(Structure structure, boolean asArray){
 		this.structure = structure;
+		this.structureIsArray = asArray;
 	}
 
 	/**
@@ -91,6 +94,18 @@ public class Simple{
 	 */
 	public Structure getStructure(){
 		return structure;
+	}
+
+	/**
+	 * Indicates that the sub structure should be read as array
+	 *
+	 * @return structure
+	 */
+	public boolean structureIsArray(){
+		if(structure != null){
+			return structureIsArray;
+		}
+		throw new RuntimeException("Does not contain a structure");
 	}
 
 }

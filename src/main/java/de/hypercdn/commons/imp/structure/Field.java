@@ -107,7 +107,7 @@ public class Field{
 		if(hasDefault()){
 			return defaultSupplier.get();
 		}
-		return null;
+		throw new RuntimeException("No default supplier configured");
 	}
 
 }

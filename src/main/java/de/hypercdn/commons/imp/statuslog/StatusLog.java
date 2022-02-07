@@ -116,7 +116,7 @@ public class StatusLog{
 	 * @return current instance
 	 */
 	public StatusLog addChild(StatusLog statusLog){
-		if(hasLevel(statusLog.getLevel())){
+		if(!hasLevel(statusLog.getLevel())){
 			setLevel(statusLog.getLevel());
 		}
 		children.add(statusLog);
