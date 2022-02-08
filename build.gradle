@@ -26,7 +26,7 @@ dependencies {
     // JSON
 
     // https://mvnrepository.com/artifact/org.mongodb/bson
-    implementation group: 'org.mongodb', name: 'bson', version: '4.4.1'
+    implementation group: 'org.mongodb', name: 'bson', version: '4.4.2'
 
     // BOUNCY
 
