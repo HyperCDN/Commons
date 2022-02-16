@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
  * Indicates that an object can be deserialized utilizing the method this annotation got attached to
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface Deserialize{}
