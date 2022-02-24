@@ -18,10 +18,24 @@ public interface IDLayer<T extends IDLayer<T, U> & Identifiable<U>, U> extends L
 	U innerId();
 
 	/**
+	 * Sets the id of the inner object
+	 *
+	 * @param innerId
+	 */
+	void setInnerId(U innerId);
+
+	/**
 	 * Returns the id of the outer object
 	 *
 	 * @return id
 	 */
 	U outerId();
+
+	/**
+	 * Sets the id of the outer object
+	 *
+	 * @param outerId
+	 */
+	void setOuterId(U outerId);
 
 }

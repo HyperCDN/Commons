@@ -18,10 +18,24 @@ public interface IDChain<T extends IDChain<T, U> & Identifiable<U>, U> extends C
 	U nextId();
 
 	/**
+	 * Sets the id of the next object
+	 *
+	 * @param nextId
+	 */
+	void setNextId(U nextId);
+
+	/**
 	 * Returns the id of the previous object
 	 *
 	 * @return id
 	 */
 	U previousId();
+
+	/**
+	 * Sets the id of the previous object
+	 *
+	 * @param previousId
+	 */
+	void setPreviousId(U previousId);
 
 }
