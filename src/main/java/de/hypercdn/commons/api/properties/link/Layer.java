@@ -41,7 +41,7 @@ public interface Layer<T extends Layer<T>>{
 	 *
 	 * @param outer object
 	 */
-	void outer(T outer);
+	void setOuter(T outer);
 
 	/**
 	 * Retrieves a cursor for the layer starting from the current object
