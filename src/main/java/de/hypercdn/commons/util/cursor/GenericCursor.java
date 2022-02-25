@@ -84,7 +84,7 @@ public class GenericCursor<CONTAINER_TYPE, ENTITY_TYPE> extends Cursor<CONTAINER
 			(instance) -> new State<>(instance, obj, obj[0], 0, false),
 			(state) -> !state.end(),
 			(state) -> {
-				if(state.container().length > state.index() + 1){
+				if(state.container().length > state.index() + 1 || state.end()){
 					return new State<>(state.cursor(), state.container(), null, state.end() ? state.index() : state.index() + 1, true);
 				}
 				else{
@@ -107,7 +107,7 @@ public class GenericCursor<CONTAINER_TYPE, ENTITY_TYPE> extends Cursor<CONTAINER
 			(instance) -> new State<>(instance, obj, obj.get(0), 0, false),
 			(state) -> !state.end(),
 			(state) -> {
-				if(state.container().size() > state.index() + 1){
+				if(state.container().size() > state.index() + 1 || state.end()){
 					return new State<>(state.cursor(), state.container(), null, state.end() ? state.index() : state.index() + 1, true);
 				}
 				else{
@@ -135,7 +135,7 @@ public class GenericCursor<CONTAINER_TYPE, ENTITY_TYPE> extends Cursor<CONTAINER
 					case OUTER -> state.container().outer();
 					case INNER -> state.container().inner();
 				};
-				if(objx == null){
+				if(objx == null || state.end()){
 					return new State<>(state.cursor(), state.container(), null, state.end() ? state.index() : state.index() + 1, true);
 				}
 				else{
@@ -163,7 +163,7 @@ public class GenericCursor<CONTAINER_TYPE, ENTITY_TYPE> extends Cursor<CONTAINER
 					case NEXT -> state.container().next();
 					case PREVIOUS -> state.container().previous();
 				};
-				if(state.container().next() == null){
+				if(state.container().next() == null || state.end()){
 					return new State<>(state.cursor(), state.container(), null, state.end() ? state.index() : state.index() + 1, true);
 				}
 				else{
