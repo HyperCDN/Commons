@@ -9,7 +9,7 @@ import java.time.Instant;
 public abstract class ExecutableBase implements Executable{
 
 	protected Logger logger = LoggerFactory.getLogger(getClass());
-	private ExecutionState executionState = new ExecutionState(ExecutionState.Reference.UNKNOWN, "Unknown State");
+	private ExecutionState executionState = ExecutionState.UNKNOWN;
 	private Instant lastExecutionTime = Instant.MIN;
 	private Instant lastExecutionEndTime = Instant.MIN;
 

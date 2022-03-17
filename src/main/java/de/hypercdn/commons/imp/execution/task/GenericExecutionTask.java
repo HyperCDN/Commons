@@ -14,7 +14,7 @@ public abstract class GenericExecutionTask extends ExecutableBase implements Exe
 	@Override
 	public RunnableExecutionAction asExecutionAction(){
 		return new RunnableExecutionAction(() -> {
-			setState(new ExecutionState(ExecutionState.Reference.STARTED, null));
+			setState(ExecutionState.STARTED);
 			logger.trace(this.toString());
 			Object holder = null;
 			boolean skip = false;
@@ -38,7 +38,7 @@ public abstract class GenericExecutionTask extends ExecutableBase implements Exe
 				}
 			}
 			if(exception == null){
-				setState(new ExecutionState(ExecutionState.Reference.COMPLETED, null));
+				setState(ExecutionState.COMPLETED);
 			}
 			logger.trace(this.toString());
 		});

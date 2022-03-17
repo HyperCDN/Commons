@@ -16,7 +16,7 @@ public abstract class GenericExecutionStage<IN, OUT> extends ExecutableBase impl
 	public ExecutionAction<IN, OUT> asExecutionActionWith(Supplier<IN> inputSupplier){
 		return new GenericExecutionAction<>(inputSupplier, input -> {
 			try{
-				setState(new ExecutionState(ExecutionState.Reference.STARTED, null));
+				setState(ExecutionState.STARTED);
 				logger.trace(this.toString());
 				var result = getActionFunction().apply(input);
 				setState(new ExecutionState(ExecutionState.Reference.COMPLETED, result));
