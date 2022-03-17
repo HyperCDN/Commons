@@ -1,6 +1,6 @@
-package de.hypercdn.commons.imp.executionaction;
+package de.hypercdn.commons.imp.execution.action;
 
-import de.hypercdn.commons.api.executionaction.ExecutionAction;
+import de.hypercdn.commons.api.execution.action.ExecutionAction;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;

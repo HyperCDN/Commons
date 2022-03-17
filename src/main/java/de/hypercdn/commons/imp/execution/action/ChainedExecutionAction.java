@@ -1,6 +1,6 @@
-package de.hypercdn.commons.imp.executionaction;
+package de.hypercdn.commons.imp.execution.action;
 
-import de.hypercdn.commons.api.executionaction.ExecutionAction;
+import de.hypercdn.commons.api.execution.action.ExecutionAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
