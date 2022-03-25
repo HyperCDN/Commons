@@ -5,7 +5,7 @@ import de.hypercdn.commons.imp.execution.task.ExecutionState;
 import java.time.Duration;
 import java.time.Instant;
 
-public interface Executable{
+public interface Executable extends Runnable{
 
 	/**
 	 * Returns the name of the executable
@@ -30,14 +30,14 @@ public interface Executable{
 	 *
 	 * @return execution state
 	 */
-	ExecutionState getState();
+	ExecutionState getExecutionState();
 
 	/**
 	 * Sets the execution state
 	 *
 	 * @param executionState to set
 	 */
-	void setState(ExecutionState executionState);
+	void setExecutionState(ExecutionState executionState);
 
 	/**
 	 * Returns the last timestamp of when execution of the executable started

@@ -32,4 +32,12 @@ public interface ExecutionStage<IN, OUT> extends Executable{
 	 */
 	ExecutionAction<IN, OUT> asExecutionActionWith(Supplier<IN> inputSupplier);
 
+	/**
+	 * Default implementation of the runnable
+	 */
+	@Override
+	default void run(){
+		asExecutionAction().execute();
+	}
+
 }

@@ -14,33 +14,35 @@ public abstract class GenericExecutionTask extends ExecutableBase implements Exe
 	@Override
 	public RunnableExecutionAction asExecutionAction(){
 		return new RunnableExecutionAction(() -> {
-			setState(ExecutionState.STARTED);
-			logger.trace(this.toString());
-			Object holder = null;
-			boolean skip = false;
-			Exception exception = null;
-			for(var stage : getStages()){
-				try{
-					if(skip){
-						stage.setState(new ExecutionState(ExecutionState.Reference.SKIPPED, exception != null ? "Skipped due to previous failure" : "Skipped"));
-						continue;
+			synchronized(this){
+				setExecutionState(ExecutionState.STARTED);
+				logger.trace(this.toString());
+				Object holder = null;
+				boolean skip = false;
+				Exception exception = null;
+				for(var stage : getStages()){
+					try{
+						if(skip){
+							stage.setExecutionState(new ExecutionState(ExecutionState.Reference.SKIPPED, exception != null ? "Skipped due to previous failure" : "Skipped"));
+							continue;
+						}
+						Object finalHolder = holder;
+						holder = stage.asExecutionActionWith(() -> finalHolder).execute();
+						if(holder == null){
+							skip = true;
+						}
 					}
-					Object finalHolder = holder;
-					holder = stage.asExecutionActionWith(() -> finalHolder).execute();
-					if(holder == null){
+					catch(Exception e){
 						skip = true;
+						exception = e;
+						setExecutionState(new ExecutionState(ExecutionState.Reference.FAILED, e));
 					}
 				}
-				catch(Exception e){
-					skip = true;
-					exception = e;
-					setState(new ExecutionState(ExecutionState.Reference.FAILED, e));
+				if(exception == null){
+					setExecutionState(ExecutionState.COMPLETED);
 				}
+				logger.trace(this.toString());
 			}
-			if(exception == null){
-				setState(ExecutionState.COMPLETED);
-			}
-			logger.trace(this.toString());
 		});
 	}
 
@@ -50,7 +52,7 @@ public abstract class GenericExecutionTask extends ExecutableBase implements Exe
 		builder.append(
 			String.format("Task \"%s\" | %s | at %s for %s | %s",
 				getName(),
-				getState().reference(),
+				getExecutionState().reference(),
 				getLastExecutionTime(),
 				getLastExecutionDuration(),
 				getDescription()

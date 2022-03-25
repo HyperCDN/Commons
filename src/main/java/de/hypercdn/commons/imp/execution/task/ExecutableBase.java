@@ -17,12 +17,12 @@ public abstract class ExecutableBase implements Executable{
 	public abstract String getDescription();
 
 	@Override
-	public ExecutionState getState(){
+	public ExecutionState getExecutionState(){
 		return executionState;
 	}
 
 	@Override
-	public void setState(ExecutionState executionState){
+	public synchronized void setExecutionState(ExecutionState executionState){
 		this.executionState = executionState;
 		switch(executionState.reference()){
 			case STARTED -> setLastExecutionTime(Instant.now());
@@ -36,7 +36,7 @@ public abstract class ExecutableBase implements Executable{
 	}
 
 	@Override
-	public void setLastExecutionTime(Instant lastExecutionTime){
+	public synchronized void setLastExecutionTime(Instant lastExecutionTime){
 		this.lastExecutionTime = lastExecutionTime;
 	}
 
@@ -46,7 +46,7 @@ public abstract class ExecutableBase implements Executable{
 	}
 
 	@Override
-	public void setLastExecutionEndTime(Instant time){
+	public synchronized void setLastExecutionEndTime(Instant time){
 		this.lastExecutionEndTime = time;
 	}
 

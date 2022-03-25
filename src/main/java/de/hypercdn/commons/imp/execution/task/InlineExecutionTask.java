@@ -39,8 +39,8 @@ public class InlineExecutionTask extends GenericExecutionTask{
 	}
 
 	@Override
-	public ExecutionState getState(){
-		return super.getState();
+	public ExecutionState getExecutionState(){
+		return super.getExecutionState();
 	}
 
 	@Override

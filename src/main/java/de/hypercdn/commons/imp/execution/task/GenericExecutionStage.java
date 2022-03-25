@@ -15,19 +15,21 @@ public abstract class GenericExecutionStage<IN, OUT> extends ExecutableBase impl
 	@Override
 	public ExecutionAction<IN, OUT> asExecutionActionWith(Supplier<IN> inputSupplier){
 		return new GenericExecutionAction<>(inputSupplier, input -> {
-			try{
-				setState(ExecutionState.STARTED);
-				logger.trace(this.toString());
-				var result = getActionFunction().apply(input);
-				setState(new ExecutionState(ExecutionState.Reference.COMPLETED, result));
-				return result;
-			}
-			catch(Exception e){
-				setState(new ExecutionState(ExecutionState.Reference.FAILED, e));
-				throw e;
-			}
-			finally{
-				logger.trace(this.toString());
+			synchronized(this){
+				try{
+					setExecutionState(ExecutionState.STARTED);
+					logger.trace(this.toString());
+					var result = getActionFunction().apply(input);
+					setExecutionState(new ExecutionState(ExecutionState.Reference.COMPLETED, result));
+					return result;
+				}
+				catch(Exception e){
+					setExecutionState(new ExecutionState(ExecutionState.Reference.FAILED, e));
+					throw e;
+				}
+				finally{
+					logger.trace(this.toString());
+				}
 			}
 		});
 	}
@@ -36,7 +38,7 @@ public abstract class GenericExecutionStage<IN, OUT> extends ExecutableBase impl
 	public String toString(){
 		return String.format("Stage \"%s\" | %s | at %s for %s | %s",
 			getName(),
-			getState().reference(),
+			getExecutionState().reference(),
 			getLastExecutionTime(),
 			getLastExecutionDuration(),
 			getDescription()

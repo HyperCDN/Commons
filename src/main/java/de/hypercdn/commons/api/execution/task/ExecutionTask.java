@@ -20,4 +20,12 @@ public interface ExecutionTask extends Executable{
 	 */
 	RunnableExecutionAction asExecutionAction();
 
+	/**
+	 * Default implementation of the runnable
+	 */
+	@Override
+	default void run(){
+		asExecutionAction().execute();
+	}
+
 }
