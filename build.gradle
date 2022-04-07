@@ -34,6 +34,12 @@ dependencies {
     // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15to18
     api group: 'org.bouncycastle', name: 'bcpkix-jdk15to18', version: '1.70'
 
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from {
+            configurations.compileClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+        }
+    }
 }
 
 test {
@@ -60,7 +66,8 @@ publishing {
     }
     publications {
         maven(MavenPublication) {
-            artifact(tasks["shadowJar"])
+            //artifact(tasks["shadowJar"])
+            from components.java
             pom {
                 name = 'Commons'
                 description = ''
