@@ -30,9 +30,10 @@ public interface ExecutionAction<IN, OUT>{
 	/**
 	 * Returns an execution action which combines multiple execution actions
 	 *
-	 * @param first action
+	 * @param first  action
 	 * @param others actions
-	 * @param <U> return type
+	 * @param <U>    return type
+	 *
 	 * @return mapped execution action
 	 */
 	static <U> ExecutionAction<?, List<U>> allOf(ExecutionAction<?, U> first, ExecutionAction<?, U>... others){
@@ -47,7 +48,8 @@ public interface ExecutionAction<IN, OUT>{
 	 * Returns an execution action which combines multiple execution actions
 	 *
 	 * @param list of actions
-	 * @param <U> return type
+	 * @param <U>  return type
+	 *
 	 * @return mapped execution action
 	 */
 	static <U> ExecutionAction<?, List<U>> allOf(List<ExecutionAction<?, U>> list){
@@ -59,9 +61,10 @@ public interface ExecutionAction<IN, OUT>{
 	 *
 	 * @param actions
 	 * @param collector
-	 * @param <E> input output type
-	 * @param <A> accumulator type
-	 * @param <O> output type
+	 * @param <E>       input output type
+	 * @param <A>       accumulator type
+	 * @param <O>       output type
+	 *
 	 * @return
 	 */
 	static <E, A, O> ExecutionAction<?, O> accumulate(Collection<? extends ExecutionAction<?, ? extends E>> actions, Collector<? super E, A, ? extends O> collector){
@@ -86,6 +89,61 @@ public interface ExecutionAction<IN, OUT>{
 		}
 
 		return result.map(output);
+	}
+
+	/**
+	 * Returns a new execution action of the provided function
+	 *
+	 * @param function to execute
+	 * @param <IN>     type
+	 * @param <OUT>    type
+	 *
+	 * @return execution action
+	 */
+	static <IN, OUT> ExecutionAction<IN, OUT> of(Function<IN, OUT> function){
+		return new GenericExecutionAction<>(() -> null, function);
+	}
+
+	/**
+	 * Returns a new execution action of the provided supplier
+	 *
+	 * @param supplier to execute
+	 * @param <OUT>    type
+	 *
+	 * @return execution action
+	 */
+	static <OUT> ExecutionAction<Void, OUT> of(Supplier<OUT> supplier){
+		return of(unused -> {
+			return supplier.get();
+		});
+	}
+
+	/**
+	 * Returns a new execution action of the provided consumer
+	 *
+	 * @param consumer to execute
+	 * @param <IN>     type
+	 *
+	 * @return execution action
+	 */
+	static <IN> ExecutionAction<IN, Void> of(Consumer<IN> consumer){
+		return of(in -> {
+			consumer.accept(in);
+			return null;
+		});
+	}
+
+	/**
+	 * Returns a new execution action of the provided runnable
+	 *
+	 * @param runnable to execute
+	 *
+	 * @return execution action
+	 */
+	static ExecutionAction<Void, Void> of(Runnable runnable){
+		return of(unused -> {
+			runnable.run();
+		});
 	}
 
 	/**
@@ -310,6 +368,60 @@ public interface ExecutionAction<IN, OUT>{
 	 */
 	default <MAPPED> ExecutionAction<IN, MAPPED> then(ExecutionAction<OUT, MAPPED> next){
 		return new ChainedExecutionAction<>(this, next);
+	}
+
+	/**
+	 * Will execute the specified function after this one
+	 *
+	 * @param next     action
+	 * @param <MAPPED> type
+	 *
+	 * @return chained execution action
+	 */
+	default <MAPPED> ExecutionAction<IN, MAPPED> then(Function<OUT, MAPPED> next){
+		return then(new GenericExecutionAction<>(() -> null, next));
+	}
+
+	/**
+	 * Will execute the specified supplier after this one
+	 *
+	 * @param next     action
+	 * @param <MAPPED> type
+	 *
+	 * @return chained execution action
+	 */
+	default <MAPPED> ExecutionAction<IN, MAPPED> then(Supplier<MAPPED> next){
+		return then(in -> {
+			return next.get();
+		});
+	}
+
+	/**
+	 * Will execute the specified consumer after this one
+	 *
+	 * @param next action
+	 *
+	 * @return chained execution action
+	 */
+	default ExecutionAction<IN, Void> then(Consumer<OUT> next){
+		return then(in -> {
+			next.accept(in);
+			return null;
+		});
+	}
+
+	/**
+	 * Will execute the specified runnable after this one
+	 *
+	 * @param next action
+	 *
+	 * @return chained execution action
+	 */
+	default ExecutionAction<IN, Void> then(Runnable next){
+		return then(in -> {
+			next.run();
+			return null;
+		});
 	}
 
 }
