@@ -61,7 +61,7 @@ publishing {
                 username findProperty("nexusu") as String
                 password findProperty("nexusp") as String
             }
-            url "https://cd.voigt.app/repository/maven-voigt/"
+            url findProperty("nexusr") as String
         }
     }
     publications {
