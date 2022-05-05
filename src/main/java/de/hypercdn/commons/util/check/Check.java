@@ -2,10 +2,7 @@ package de.hypercdn.commons.util.check;
 
 import de.hypercdn.commons.util.NumberUtil;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -37,6 +34,18 @@ public class Check<T>{
 	 */
 	public static Check<Object> that(){
 		return new Check<>((t) -> true, "");
+	}
+
+	/**
+	 * Returns an instance of a check
+	 *
+	 * @param tClass initial class data
+	 * @param <T>    type
+	 *
+	 * @return new check
+	 */
+	public static <T> Check<T> that(Class<T> tClass){
+		return new Check<>((t) -> true, "").as(tClass);
 	}
 
 	@Override
@@ -158,7 +167,7 @@ public class Check<T>{
 	 * @param predicate   to add
 	 * @param description of the predicate
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> and(Predicate<T> predicate, String description){
 		Objects.requireNonNull(predicate);
@@ -171,7 +180,7 @@ public class Check<T>{
 	/**
 	 * Add an or predicate to the check
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> or(){
 		return or((i) -> true, "");
@@ -183,7 +192,7 @@ public class Check<T>{
 	 * @param predicate   to add
 	 * @param description of the predicate
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> or(Predicate<T> predicate, String description){
 		Objects.requireNonNull(predicate);
@@ -199,7 +208,7 @@ public class Check<T>{
 	 * @param oClass to cast to
 	 * @param <O>
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public <O> Check<O> as(Class<O> oClass){
 		Objects.requireNonNull(oClass);
@@ -212,7 +221,7 @@ public class Check<T>{
 	 * @param clazz to check
 	 * @param <O>
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public <O> Check<O> isAssignableFrom(Class<O> clazz){
 		Objects.requireNonNull(clazz);
@@ -222,7 +231,7 @@ public class Check<T>{
 	/**
 	 * Add a check if the object is blank
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isBlank(){
 		return and(o -> o instanceof String string && string.isBlank(), "is blank");
@@ -231,7 +240,7 @@ public class Check<T>{
 	/**
 	 * Add a check if the object is not blank
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isNotBlank(){
 		return and(o -> o instanceof String string && !string.isBlank(), "is not blank");
@@ -240,7 +249,7 @@ public class Check<T>{
 	/**
 	 * Add a check if the object is null
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isNull(){
 		return and(Objects::isNull, "is null");
@@ -249,7 +258,7 @@ public class Check<T>{
 	/**
 	 * Add a check if the object is not null
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isNonNull(){
 		return and(Objects::nonNull, "is non null");
@@ -260,7 +269,7 @@ public class Check<T>{
 	 *
 	 * @param t to equal
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isEqualTo(T t){
 		Objects.requireNonNull(t);
@@ -272,7 +281,7 @@ public class Check<T>{
 	 *
 	 * @param t to not equal
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isNotEqualTo(T t){
 		Objects.requireNonNull(t);
@@ -284,7 +293,7 @@ public class Check<T>{
 	 *
 	 * @param ts to equal any of
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> doesEqualToAnyOf(T... ts){
 		Objects.requireNonNull(ts);
@@ -296,7 +305,7 @@ public class Check<T>{
 	 *
 	 * @param t to equal any of
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> doesEqualToAnyOf(Set<T> t){
 		Objects.requireNonNull(t);
@@ -308,7 +317,7 @@ public class Check<T>{
 	 *
 	 * @param ts to not equal any of
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> doesNotEqualToAnyOf(T... ts){
 		Objects.requireNonNull(ts);
@@ -320,7 +329,7 @@ public class Check<T>{
 	 *
 	 * @param t to not equal any of
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> doesNotEqualToAnyOf(Set<T> t){
 		Objects.requireNonNull(t);
@@ -332,7 +341,7 @@ public class Check<T>{
 	 *
 	 * @param comparable value
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isLargerThan(Comparable<T> comparable){
 		Objects.requireNonNull(comparable);
@@ -340,15 +349,39 @@ public class Check<T>{
 	}
 
 	/**
+	 * Add a check if the object is larger than or equal to the specified value
+	 *
+	 * @param comparable value
+	 *
+	 * @return extended check
+	 */
+	public Check<T> isLargerThanOrEqualTo(Comparable<T> comparable){
+		Objects.requireNonNull(comparable);
+		return and(o -> comparable.compareTo(o) <= 0, "is larger than or equal to " + comparable);
+	}
+
+	/**
 	 * Add a check if the object is smaller than the specified value
 	 *
 	 * @param comparable value
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isSmallerThan(Comparable<T> comparable){
 		Objects.requireNonNull(comparable);
-		return and(o -> comparable.compareTo(o) > 0, "is smaller than" + comparable);
+		return and(o -> comparable.compareTo(o) > 0, "is smaller than " + comparable);
+	}
+
+	/**
+	 * Add a check if the object is smaller than or equal to the specified value
+	 *
+	 * @param comparable value
+	 *
+	 * @return extended check
+	 */
+	public Check<T> isSmallerThanOrEqualTo(Comparable<T> comparable){
+		Objects.requireNonNull(comparable);
+		return and(o -> comparable.compareTo(o) >= 0, "is smaller than or equal to " + comparable);
 	}
 
 	/**
@@ -357,7 +390,7 @@ public class Check<T>{
 	 * @param min value
 	 * @param max value
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isInRangeOf(Comparable<T> min, Comparable<T> max){
 		Objects.requireNonNull(min);
@@ -371,7 +404,7 @@ public class Check<T>{
 	 * @param min value
 	 * @param max value
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isOutOfRangeOf(Comparable<T> min, Comparable<T> max){
 		Objects.requireNonNull(min);
@@ -384,7 +417,7 @@ public class Check<T>{
 	 *
 	 * @param number to check against
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isLargerThan(Number number){
 		Objects.requireNonNull(number);
@@ -392,15 +425,39 @@ public class Check<T>{
 	}
 
 	/**
+	 * Add a check if the object is larger than or equal as specified
+	 *
+	 * @param number to check against
+	 *
+	 * @return extended check
+	 */
+	public Check<T> isLargerThanOrEqualTo(Number number){
+		Objects.requireNonNull(number);
+		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) >= 0, "is larger than or equal to " + number);
+	}
+
+	/**
 	 * Add a check if the object is smaller than specified
 	 *
 	 * @param number to check against
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isSmallerThan(Number number){
 		Objects.requireNonNull(number);
 		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) < 0, "is smaller than " + number);
+	}
+
+	/**
+	 * Add a check if the object is smaller than or equal as specified
+	 *
+	 * @param number to check against
+	 *
+	 * @return extended check
+	 */
+	public Check<T> isSmallerThanOrEqualTo(Number number){
+		Objects.requireNonNull(number);
+		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) <= 0, "is smaller than or equal to " + number);
 	}
 
 	/**
@@ -409,7 +466,7 @@ public class Check<T>{
 	 * @param min value
 	 * @param max value
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isInRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
@@ -423,12 +480,110 @@ public class Check<T>{
 	 * @param min value
 	 * @param max value
 	 *
-	 * @return new check
+	 * @return extended check
 	 */
 	public Check<T> isOutOfRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
 		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) < 0 && NumberUtil.compare(oNumber, max) > 0, "is not in range of " + min + " to " + max);
+	}
+
+	/**
+	 * Add a check for a size comparison equal to the specified value
+	 *
+	 * @param number value
+	 *
+	 * @return extended check
+	 */
+	public Check<T> hasSizeOf(Number number){
+		Objects.requireNonNull(number);
+		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) == 0)
+			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) == 0)
+			|| (o instanceof String s && NumberUtil.compare(s.length(), number) == 0), "has size of " + number);
+	}
+
+	/**
+	 * Add a check for a size comparison larger than the specified value
+	 *
+	 * @param number value
+	 *
+	 * @return extended check
+	 */
+	public Check<T> hasSizeLargerThan(Number number){
+		Objects.requireNonNull(number);
+		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) > 0)
+			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) > 0)
+			|| (o instanceof String s && NumberUtil.compare(s.length(), number) > 0), "has size larger than " + number);
+	}
+
+	/**
+	 * Add a check for a size comparison larger than or equal to the specified value
+	 *
+	 * @param number value
+	 *
+	 * @return extended check
+	 */
+	public Check<T> hasSizeLargerThanOrEqualTo(Number number){
+		Objects.requireNonNull(number);
+		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) >= 0)
+			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) >= 0)
+			|| (o instanceof String s && NumberUtil.compare(s.length(), number) >= 0), "has size larger than or equal to " + number);
+	}
+
+	/**
+	 * Add a check for a size comparison smaller than the specified value
+	 *
+	 * @param number value
+	 *
+	 * @return extended check
+	 */
+	public Check<T> hasSizeSmallerThan(Number number){
+		Objects.requireNonNull(number);
+		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) < 0)
+			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) < 0)
+			|| (o instanceof String s && NumberUtil.compare(s.length(), number) < 0), "has size smaller than " + number);
+	}
+
+	/**
+	 * Add a check for a size comparison smaller than or equal to the specified value
+	 *
+	 * @param number value
+	 *
+	 * @return extended check
+	 */
+	public Check<T> hasSizeSmallerThanOrEqualTo(Number number){
+		Objects.requireNonNull(number);
+		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) <= 0)
+			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) <= 0)
+			|| (o instanceof String s && NumberUtil.compare(s.length(), number) <= 0), "has size smaller than or equal to " + number);
+	}
+
+	/**
+	 * Add a check for a size comparison in range of to the specified values
+	 *
+	 * @param min value
+	 * @param max value
+	 *
+	 * @return extended check
+	 */
+	public Check<T> hasSizeInRangeOf(Number min, Number max){
+		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), min) >= 0 && NumberUtil.compare(c.size(), max) <= 0)
+			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, min) >= 0 && NumberUtil.compare(((Object[]) o).length, max) <= 0)
+			|| (o instanceof String s && NumberUtil.compare(s.length(), min) >= 0 && NumberUtil.compare(s.length(), max) <= 0), "size in range of " + min + " to " + max);
+	}
+
+	/**
+	 * Add a check for a size comparison out of range of to the specified values
+	 *
+	 * @param min value
+	 * @param max value
+	 *
+	 * @return extended check
+	 */
+	public Check<T> hasSizeOutOfRangeOf(Number min, Number max){
+		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), min) < 0 && NumberUtil.compare(c.size(), max) > 0)
+			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, min) < 0 && NumberUtil.compare(((Object[]) o).length, max) > 0)
+			|| (o instanceof String s && NumberUtil.compare(s.length(), min) < 0 && NumberUtil.compare(s.length(), max) > 0), "size not in range of " + min + " to " + max);
 	}
 
 }
