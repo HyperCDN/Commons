@@ -1,8 +1,12 @@
 package de.hypercdn.commons.util.check;
 
-import de.hypercdn.commons.util.NumberUtil;
+import de.hypercdn.commons.util.CompareUtil;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -421,7 +425,7 @@ public class Check<T>{
 	 */
 	public Check<T> isLargerThan(Number number){
 		Objects.requireNonNull(number);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) > 0, "is larger than " + number);
+		return and(o -> o instanceof Number oNumber && CompareUtil.compare(oNumber, number) > 0, "is larger than " + number);
 	}
 
 	/**
@@ -433,7 +437,7 @@ public class Check<T>{
 	 */
 	public Check<T> isLargerThanOrEqualTo(Number number){
 		Objects.requireNonNull(number);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) >= 0, "is larger than or equal to " + number);
+		return and(o -> o instanceof Number oNumber && CompareUtil.compare(oNumber, number) >= 0, "is larger than or equal to " + number);
 	}
 
 	/**
@@ -445,7 +449,7 @@ public class Check<T>{
 	 */
 	public Check<T> isSmallerThan(Number number){
 		Objects.requireNonNull(number);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) < 0, "is smaller than " + number);
+		return and(o -> o instanceof Number oNumber && CompareUtil.compare(oNumber, number) < 0, "is smaller than " + number);
 	}
 
 	/**
@@ -457,7 +461,7 @@ public class Check<T>{
 	 */
 	public Check<T> isSmallerThanOrEqualTo(Number number){
 		Objects.requireNonNull(number);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, number) <= 0, "is smaller than or equal to " + number);
+		return and(o -> o instanceof Number oNumber && CompareUtil.compare(oNumber, number) <= 0, "is smaller than or equal to " + number);
 	}
 
 	/**
@@ -471,7 +475,7 @@ public class Check<T>{
 	public Check<T> isInRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) >= 0 && NumberUtil.compare(oNumber, max) <= 0, "is in range of " + min + " to " + max);
+		return and(o -> o instanceof Number oNumber && CompareUtil.compare(oNumber, min) >= 0 && CompareUtil.compare(oNumber, max) <= 0, "is in range of " + min + " to " + max);
 	}
 
 	/**
@@ -485,105 +489,29 @@ public class Check<T>{
 	public Check<T> isOutOfRangeOf(Number min, Number max){
 		Objects.requireNonNull(min);
 		Objects.requireNonNull(max);
-		return and(o -> o instanceof Number oNumber && NumberUtil.compare(oNumber, min) < 0 && NumberUtil.compare(oNumber, max) > 0, "is not in range of " + min + " to " + max);
+		return and(o -> o instanceof Number oNumber && CompareUtil.compare(oNumber, min) < 0 && CompareUtil.compare(oNumber, max) > 0, "is not in range of " + min + " to " + max);
 	}
 
 	/**
-	 * Add a check for a size comparison equal to the specified value
+	 * Add a check for an inner property
 	 *
-	 * @param number value
-	 *
-	 * @return extended check
-	 */
-	public Check<T> hasSizeOf(Number number){
-		Objects.requireNonNull(number);
-		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) == 0)
-			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) == 0)
-			|| (o instanceof String s && NumberUtil.compare(s.length(), number) == 0), "has size of " + number);
-	}
-
-	/**
-	 * Add a check for a size comparison larger than the specified value
-	 *
-	 * @param number value
+	 * @param map         to access property
+	 * @param check       to perform
+	 * @param description to display on check failute
+	 * @param <TI>        type
 	 *
 	 * @return extended check
 	 */
-	public Check<T> hasSizeLargerThan(Number number){
-		Objects.requireNonNull(number);
-		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) > 0)
-			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) > 0)
-			|| (o instanceof String s && NumberUtil.compare(s.length(), number) > 0), "has size larger than " + number);
-	}
-
-	/**
-	 * Add a check for a size comparison larger than or equal to the specified value
-	 *
-	 * @param number value
-	 *
-	 * @return extended check
-	 */
-	public Check<T> hasSizeLargerThanOrEqualTo(Number number){
-		Objects.requireNonNull(number);
-		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) >= 0)
-			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) >= 0)
-			|| (o instanceof String s && NumberUtil.compare(s.length(), number) >= 0), "has size larger than or equal to " + number);
-	}
-
-	/**
-	 * Add a check for a size comparison smaller than the specified value
-	 *
-	 * @param number value
-	 *
-	 * @return extended check
-	 */
-	public Check<T> hasSizeSmallerThan(Number number){
-		Objects.requireNonNull(number);
-		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) < 0)
-			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) < 0)
-			|| (o instanceof String s && NumberUtil.compare(s.length(), number) < 0), "has size smaller than " + number);
-	}
-
-	/**
-	 * Add a check for a size comparison smaller than or equal to the specified value
-	 *
-	 * @param number value
-	 *
-	 * @return extended check
-	 */
-	public Check<T> hasSizeSmallerThanOrEqualTo(Number number){
-		Objects.requireNonNull(number);
-		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), number) <= 0)
-			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, number) <= 0)
-			|| (o instanceof String s && NumberUtil.compare(s.length(), number) <= 0), "has size smaller than or equal to " + number);
-	}
-
-	/**
-	 * Add a check for a size comparison in range of to the specified values
-	 *
-	 * @param min value
-	 * @param max value
-	 *
-	 * @return extended check
-	 */
-	public Check<T> hasSizeInRangeOf(Number min, Number max){
-		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), min) >= 0 && NumberUtil.compare(c.size(), max) <= 0)
-			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, min) >= 0 && NumberUtil.compare(((Object[]) o).length, max) <= 0)
-			|| (o instanceof String s && NumberUtil.compare(s.length(), min) >= 0 && NumberUtil.compare(s.length(), max) <= 0), "size in range of " + min + " to " + max);
-	}
-
-	/**
-	 * Add a check for a size comparison out of range of to the specified values
-	 *
-	 * @param min value
-	 * @param max value
-	 *
-	 * @return extended check
-	 */
-	public Check<T> hasSizeOutOfRangeOf(Number min, Number max){
-		return and(o -> (o instanceof Collection<?> c && NumberUtil.compare(c.size(), min) < 0 && NumberUtil.compare(c.size(), max) > 0)
-			|| (o.getClass().isArray() && NumberUtil.compare(((Object[]) o).length, min) < 0 && NumberUtil.compare(((Object[]) o).length, max) > 0)
-			|| (o instanceof String s && NumberUtil.compare(s.length(), min) < 0 && NumberUtil.compare(s.length(), max) > 0), "size not in range of " + min + " to " + max);
+	public <TI> Check<T> innerCheck(Function<T, TI> map, Check<TI> check, String description){
+		return and(o -> {
+			try{
+				check.with(map.apply(o));
+			}
+			catch(CheckException e){
+				return false;
+			}
+			return true;
+		}, "inner check does not match: " + description);
 	}
 
 }
