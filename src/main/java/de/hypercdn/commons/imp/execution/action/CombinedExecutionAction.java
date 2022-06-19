@@ -102,79 +102,110 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 
 	@Override
 	public void queue(Void input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer){
-		logger.trace("Started executing " + getClass().getSimpleName() + "#" + hashCode());
+		logger.trace("Initializing execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
+
 		var lock = new ReentrantLock();
 		var done1 = new AtomicBoolean(false);
 		var done2 = new AtomicBoolean(false);
 		var result1 = new AtomicReference<OUT1>();
 		var result2 = new AtomicReference<OUT2>();
 
-		Consumer<Throwable> failureCallback = (throwable) -> {
+		Consumer<Throwable> failureCallback = throwable -> {
 			if(failed){
 				return;
 			}
 			failed = true;
+
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			logger.trace("Failed execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+
 			if(exceptionConsumer != null){
-				exceptionConsumer.accept(throwable);
+				exceptionConsumer.accept(throwable instanceof ExecutionException ? throwable : new ExecutionException(throwable));
 			}
 		};
 
-		executionAction1.queue((result) -> LockUtil.executeLocked(lock, () -> {
+		Consumer<MAPPED> successMappedCallback = mapped -> {
+			lastExecutionDuration = (System.nanoTime() - startTime);
+			logger.trace("Finished execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+
+			if(successConsumer != null){
+				successConsumer.accept(mapped);
+			}
+		};
+
+		BiConsumer<OUT1, OUT2> mappingConsumer = (o1, o2) -> {
 			try{
-				done1.set(true);
-				result1.set(result);
-				if(done2.get()){
-					lastExecutionDuration = (System.nanoTime() - startTime);
-					logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-					if(successConsumer != null){
-						successConsumer.accept(accumulator.apply(result1.get(), result2.get()));
+				var mapped = accumulator.apply(o1, o2);
+				successMappedCallback.accept(mapped);
+			}
+			catch(Throwable t){
+				failureCallback.accept(t);
+			}
+		};
+
+		try{
+			executionAction1.queue((result) -> LockUtil.executeLocked(lock, () -> {
+				try{
+					done1.set(true);
+					result1.set(result);
+					if(done2.get()){
+						mappingConsumer.accept(result1.get(), result2.get());
 					}
 				}
-			}
-			catch(Exception e){
-				failureCallback.accept(e);
-			}
-		}), failureCallback);
-		executionAction2.queue((result) -> LockUtil.executeLocked(lock, () -> {
-			try{
-				done2.set(true);
-				result2.set(result);
-				if(done1.get()){
-					lastExecutionDuration = (System.nanoTime() - startTime);
-					logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-					if(successConsumer != null){
-						successConsumer.accept(accumulator.apply(result1.get(), result2.get()));
+				catch(Exception e){
+					failureCallback.accept(e);
+				}
+			}), failureCallback);
+			executionAction2.queue((result) -> LockUtil.executeLocked(lock, () -> {
+				try{
+					done2.set(true);
+					result2.set(result);
+					if(done1.get()){
+						mappingConsumer.accept(result1.get(), result2.get());
 					}
 				}
+				catch(Exception e){
+					failureCallback.accept(e);
+				}
+			}), failureCallback);
+		}
+		catch(Throwable t){
+			logger.trace("Failed to initialize execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
+			lastExecutionDuration = (System.nanoTime() - startTime);
+
+			if(t instanceof Error){
+				throw t;
 			}
-			catch(Exception e){
-				failureCallback.accept(e);
+			if(exceptionConsumer != null){
+				exceptionConsumer.accept(t instanceof ExecutionException ? t : new ExecutionException(t));
 			}
-		}), failureCallback);
+		}
 	}
 
 	@Override
 	public MAPPED execute(Void input) throws ExecutionException{
-		logger.debug("Started executing " + getClass().getSimpleName() + "#" + hashCode());
+		logger.debug("Started execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 		try{
+			if(!getCheck().getAsBoolean()){
+				return null;
+			}
 			var a = executionAction1.execute();
 			var b = executionAction2.execute();
 			var result = accumulator.apply(a, b);
-			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			return result;
 		}
 		catch(Throwable t){
-			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-			if(t instanceof Error){
+			if(t instanceof Error || t instanceof ExecutionException){
 				throw t;
 			}
 			throw new ExecutionException(t);
+		}
+		finally{
+			lastExecutionDuration = (System.nanoTime() - startTime);
+			logger.trace("Finished execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 		}
 	}
 

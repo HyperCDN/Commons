@@ -103,70 +103,67 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 
 	@Override
 	public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer){
-		logger.trace("Started executing " + getClass().getSimpleName() + "#" + hashCode());
+		logger.trace("Initializing execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
+
 		try{
 			executionStack.setCurrentStack(StackTraceUtil.currentStacktrace());
 			executionStack.push(executionStack);
 			executor.execute(() -> {
 				executionStack.setCurrentStack(StackTraceUtil.currentStacktrace());
 				try{
-					if(!getCheck().getAsBoolean()){
-						if(successConsumer != null){
-							successConsumer.accept(null);
-						}
-						return;
-					}
-					var result = actionFunction.apply(input);
-					lastExecutionDuration = (System.nanoTime() - startTime);
-					logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+					var result = execute(input);
+					lastExecutionDuration = (System.nanoTime() - startTime); // override the processing time set by the execute() call as this is does not include the waiting time
 					if(successConsumer != null){
 						successConsumer.accept(result);
 					}
 				}
 				catch(Throwable t){
-					lastExecutionDuration = (System.nanoTime() - startTime);
-					logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-					t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
+					lastExecutionDuration = (System.nanoTime() - startTime); // override the processing time set by the execute() call as this is does not include the waiting time
 					if(t instanceof Error){
 						throw t;
 					}
 					if(exceptionConsumer != null){
-						exceptionConsumer.accept(new ExecutionException(t));
+						exceptionConsumer.accept(t);
 					}
 				}
 			});
 		}
 		catch(Throwable t){
-			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.trace("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			logger.trace("Failed to initialize execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
+			lastExecutionDuration = (System.nanoTime() - startTime);
+
 			if(t instanceof Error){
 				throw t;
 			}
 			if(exceptionConsumer != null){
-				exceptionConsumer.accept(new ExecutionException(t));
+				exceptionConsumer.accept(t instanceof ExecutionException ? t : new ExecutionException(t));
 			}
 		}
 	}
 
 	@Override
 	public OUT execute(IN input){
+		logger.trace("Started execution of " + getClass().getSimpleName() + "#" + hashCode());
+		var startTime = System.nanoTime();
 		try{
-			logger.debug("Started executing " + getClass().getSimpleName() + "#" + hashCode());
-			var startTime = System.nanoTime();
+			if(!getCheck().getAsBoolean()){
+				return null;
+			}
 			var result = actionFunction.apply(input);
-			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			return result;
 		}
 		catch(Throwable t){
-			logger.debug("Finished executing " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
-			if(t instanceof Error){
+			if(t instanceof Error || t instanceof ExecutionException){
 				throw t;
 			}
 			throw new ExecutionException(t);
+		}
+		finally{
+			lastExecutionDuration = (System.nanoTime() - startTime);
+			logger.trace("Finished execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 		}
 	}
 
