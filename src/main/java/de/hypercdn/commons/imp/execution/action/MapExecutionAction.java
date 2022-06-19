@@ -2,7 +2,6 @@ package de.hypercdn.commons.imp.execution.action;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
 import de.hypercdn.commons.imp.execution.misc.ExecutionException;
-import de.hypercdn.commons.imp.execution.misc.ExecutionStack;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -74,17 +73,6 @@ public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction<IN, 
 	@Override
 	public ExecutionAction<IN, MAPPED> setActionFunction(Function<IN, MAPPED> actionFunction){
 		throw new UnsupportedOperationException("Not allowed on mapped action");
-	}
-
-	@Override
-	public ExecutionStack getExecutionStack(){
-		return originalAction.getExecutionStack();
-	}
-
-	@Override
-	public ExecutionAction<IN, MAPPED> passExecutionStack(ExecutionStack executionStack){
-		originalAction.passExecutionStack(executionStack);
-		return this;
 	}
 
 	@Override

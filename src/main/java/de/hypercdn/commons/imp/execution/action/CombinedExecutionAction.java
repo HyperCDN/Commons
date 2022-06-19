@@ -2,7 +2,6 @@ package de.hypercdn.commons.imp.execution.action;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
 import de.hypercdn.commons.imp.execution.misc.ExecutionException;
-import de.hypercdn.commons.imp.execution.misc.ExecutionStack;
 import de.hypercdn.commons.util.LockUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,6 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 	private final ExecutionAction<?, OUT2> executionAction2;
 	private final BiFunction<? super OUT1, ? super OUT2, ? extends MAPPED> accumulator;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private final ExecutionStack executionStack = new ExecutionStack();
 	private volatile boolean failed = false;
 	private volatile long lastExecutionDuration = -1L;
 
@@ -89,17 +87,6 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 	@Override
 	public float lastExecutionDuration(){
 		return lastExecutionDuration / 1_000_000F;
-	}
-
-	@Override
-	public ExecutionStack getExecutionStack(){
-		return executionStack;
-	}
-
-	@Override
-	public ExecutionAction<Void, MAPPED> passExecutionStack(ExecutionStack executionStack){
-		this.executionStack.push(executionStack);
-		return this;
 	}
 
 	@Override
@@ -174,7 +161,6 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 		}
 		catch(Throwable t){
 			logger.trace("Failed to initialize execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-			t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
 			lastExecutionDuration = (System.nanoTime() - startTime);
 
 			if(t instanceof Error){
