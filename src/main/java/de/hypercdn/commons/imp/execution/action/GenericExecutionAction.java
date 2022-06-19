@@ -2,8 +2,6 @@ package de.hypercdn.commons.imp.execution.action;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
 import de.hypercdn.commons.imp.execution.misc.ExecutionException;
-import de.hypercdn.commons.imp.execution.misc.ExecutionStack;
-import de.hypercdn.commons.util.StackTraceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +21,6 @@ import java.util.function.Supplier;
 public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private final ExecutionStack executionStack = new ExecutionStack();
 	private Executor executor = DEFAULT_EXECUTOR;
 	private Supplier<IN> inputSupplier = () -> null;
 	private Function<IN, OUT> actionFunction = (unused) -> null;
@@ -93,26 +90,12 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 	}
 
 	@Override
-	public ExecutionStack getExecutionStack(){
-		return executionStack;
-	}
-
-	@Override
-	public ExecutionAction<IN, OUT> passExecutionStack(ExecutionStack executionStack){
-		this.executionStack.push(executionStack);
-		return this;
-	}
-
-	@Override
 	public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer){
 		logger.trace("Initializing execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 
 		try{
-			executionStack.setCurrentStack(StackTraceUtil.currentStacktrace());
-			executionStack.push(executionStack);
 			executor.execute(() -> {
-				executionStack.setCurrentStack(StackTraceUtil.currentStacktrace());
 				try{
 					var result = execute(input);
 					lastExecutionDuration = (System.nanoTime() - startTime); // override the processing time set by the execute() call as this is does not include the waiting time
@@ -133,7 +116,6 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 		}
 		catch(Throwable t){
 			logger.trace("Failed to initialize execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-			t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
 			lastExecutionDuration = (System.nanoTime() - startTime);
 
 			if(t instanceof Error){
@@ -157,7 +139,6 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 			return result;
 		}
 		catch(Throwable t){
-			t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
 			if(t instanceof Error || t instanceof ExecutionException){
 				throw t;
 			}

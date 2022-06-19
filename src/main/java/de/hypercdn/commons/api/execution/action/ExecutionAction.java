@@ -5,7 +5,6 @@ import de.hypercdn.commons.imp.execution.action.CombinedExecutionAction;
 import de.hypercdn.commons.imp.execution.action.GenericExecutionAction;
 import de.hypercdn.commons.imp.execution.action.MapExecutionAction;
 import de.hypercdn.commons.imp.execution.misc.ExecutionException;
-import de.hypercdn.commons.imp.execution.misc.ExecutionStack;
 
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -234,22 +233,6 @@ public interface ExecutionAction<IN, OUT>{
 	default float lastExecutionDuration(){
 		return -1F;
 	}
-
-	/**
-	 * Returns the execution stack which gets used to better reproduce call stacks
-	 *
-	 * @return execution stack
-	 */
-	ExecutionStack getExecutionStack();
-
-	/**
-	 * Passes a previous execution stack
-	 *
-	 * @param executionStack previous stack
-	 *
-	 * @return current instance
-	 */
-	ExecutionAction<IN, OUT> passExecutionStack(ExecutionStack executionStack);
 
 	/**
 	 * Queues this action to be executed asynchronous

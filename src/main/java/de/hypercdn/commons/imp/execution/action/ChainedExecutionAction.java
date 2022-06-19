@@ -2,7 +2,6 @@ package de.hypercdn.commons.imp.execution.action;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
 import de.hypercdn.commons.imp.execution.misc.ExecutionException;
-import de.hypercdn.commons.imp.execution.misc.ExecutionStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,6 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 	private final ExecutionAction<IN, TRANS> firstExecutionAction;
 	private final ExecutionAction<TRANS, OUT> secondExecutionAction;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private final ExecutionStack executionStack = new ExecutionStack();
 	private volatile long lastExecutionDuration = -1L;
 
 	public ChainedExecutionAction(ExecutionAction<IN, TRANS> firstExecutionAction, ExecutionAction<TRANS, OUT> secondExecutionAction){
@@ -84,17 +82,6 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 	}
 
 	@Override
-	public ExecutionStack getExecutionStack(){
-		return executionStack;
-	}
-
-	@Override
-	public ExecutionAction<IN, OUT> passExecutionStack(ExecutionStack executionStack){
-		this.executionStack.push(executionStack);
-		return this;
-	}
-
-	@Override
 	public float lastExecutionDuration(){
 		return lastExecutionDuration / 1_000_000F;
 	}
@@ -129,7 +116,6 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 		}
 		catch(Throwable t){
 			logger.trace("Failed to initialize execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-			t.setStackTrace(executionStack.getFullContextStack(t.getStackTrace()));
 			lastExecutionDuration = (System.nanoTime() - startTime);
 
 			if(t instanceof Error){
