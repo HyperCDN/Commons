@@ -4,6 +4,6 @@ updates:
         directory: "/"
         schedule:
             interval: daily
-        target-branch: main
+        target-branch: development
         pull-request-branch-name:
             separator: "-"
