@@ -143,7 +143,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 
 	@Override
 	public OUT execute(IN input) throws ExecutionException{
-		logger.debug("Started execution of " + getClass().getSimpleName() + "#" + hashCode());
+		logger.trace("Started execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 		try{
 			if(!getCheck().getAsBoolean()){
@@ -161,7 +161,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 		}
 		finally{
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.debug("Finished execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			logger.trace("Finished execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 		}
 	}
 

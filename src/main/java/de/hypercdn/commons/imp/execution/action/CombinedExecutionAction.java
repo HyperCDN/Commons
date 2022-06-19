@@ -188,7 +188,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 
 	@Override
 	public MAPPED execute(Void input) throws ExecutionException{
-		logger.debug("Started execution of " + getClass().getSimpleName() + "#" + hashCode());
+		logger.trace("Started execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 		try{
 			if(!getCheck().getAsBoolean()){
