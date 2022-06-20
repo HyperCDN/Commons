@@ -1,6 +1,10 @@
 package de.hypercdn.commons.api.execution.action;
 
-import de.hypercdn.commons.imp.execution.action.*;
+import de.hypercdn.commons.imp.execution.action.GenericExecutionAction;
+import de.hypercdn.commons.imp.execution.action.internal.ChainedExecutionAction;
+import de.hypercdn.commons.imp.execution.action.internal.CombinedExecutionAction;
+import de.hypercdn.commons.imp.execution.action.internal.MapExecutionAction;
+import de.hypercdn.commons.imp.execution.misc.exception.ExecutionException;
 
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -231,22 +235,6 @@ public interface ExecutionAction<IN, OUT>{
 	}
 
 	/**
-	 * Returns the execution stack which gets used to better reproduce call stacks
-	 *
-	 * @return execution stack
-	 */
-	ExecutionStack getExecutionStack();
-
-	/**
-	 * Passes a previous execution stack
-	 *
-	 * @param executionStack previous stack
-	 *
-	 * @return current instance
-	 */
-	ExecutionAction<IN, OUT> passExecutionStack(ExecutionStack executionStack);
-
-	/**
 	 * Queues this action to be executed asynchronous
 	 * This will use the default throwable consumer and will supply null as input if no input supplier has been defined
 	 */
@@ -422,6 +410,12 @@ public interface ExecutionAction<IN, OUT>{
 			next.run();
 			return null;
 		});
+	}
+
+	interface Internal<IN, OUT> extends ExecutionAction<IN, OUT>{
+
+		ExecutionBuffer<IN, OUT> resultBuffer();
+
 	}
 
 }
