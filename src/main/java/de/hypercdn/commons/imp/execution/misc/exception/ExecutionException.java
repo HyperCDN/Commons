@@ -1,4 +1,4 @@
-package de.hypercdn.commons.imp.execution.misc;
+package de.hypercdn.commons.imp.execution.misc.exception;
 
 import de.hypercdn.commons.api.wrap.Wrap;
 
@@ -7,8 +7,16 @@ import de.hypercdn.commons.api.wrap.Wrap;
  */
 public class ExecutionException extends RuntimeException implements Wrap<Throwable>{
 
+	public ExecutionException(String message){
+		super(message);
+	}
+
 	public ExecutionException(Throwable throwable){
 		super(throwable);
+	}
+
+	public ExecutionException(String message, Throwable throwable){
+		super(message, throwable);
 	}
 
 	@Override

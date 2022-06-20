@@ -1,7 +1,8 @@
 package de.hypercdn.commons.imp.execution.action;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
-import de.hypercdn.commons.imp.execution.misc.ExecutionException;
+import de.hypercdn.commons.imp.execution.misc.exception.ExecutionException;
+import de.hypercdn.commons.imp.execution.misc.exception.FriendlyExecutionException;
 import de.hypercdn.commons.util.LockUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 	@Override
 	public BooleanSupplier getCheck(){
 		return () ->
-			(executionAction1.getCheck() == null || executionAction1.getCheck().getAsBoolean())
+					(executionAction1.getCheck() == null || executionAction1.getCheck().getAsBoolean())
 				&& (executionAction2.getCheck() == null || executionAction2.getCheck().getAsBoolean())
 				&& !failed;
 	}
@@ -107,10 +108,13 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 			failed = true;
 
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.trace("Failed execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-
-			if(exceptionConsumer != null){
-				exceptionConsumer.accept(throwable instanceof ExecutionException ? throwable : new ExecutionException(throwable));
+			if(throwable instanceof FriendlyExecutionException) {
+				logger.trace("Stopped execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			} else {
+				logger.trace("Failed execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+				if(exceptionConsumer != null){
+					exceptionConsumer.accept(throwable instanceof ExecutionException ? throwable : new ExecutionException(throwable));
+				}
 			}
 		};
 
@@ -160,15 +164,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 			}), failureCallback);
 		}
 		catch(Throwable t){
-			logger.trace("Failed to initialize execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-			lastExecutionDuration = (System.nanoTime() - startTime);
-
-			if(t instanceof Error){
-				throw t;
-			}
-			if(exceptionConsumer != null){
-				exceptionConsumer.accept(t instanceof ExecutionException ? t : new ExecutionException(t));
-			}
+			failureCallback.accept(t);
 		}
 	}
 
@@ -178,7 +174,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 		var startTime = System.nanoTime();
 		try{
 			if(!getCheck().getAsBoolean()){
-				return null;
+				throw new FriendlyExecutionException("Execution aborted by pre execution check");
 			}
 			var a = executionAction1.execute();
 			var b = executionAction2.execute();
