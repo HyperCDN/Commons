@@ -1,4 +1,6 @@
-package de.hypercdn.commons.imp.execution.action;
+package de.hypercdn.commons.imp.execution.action.helper;
+
+import de.hypercdn.commons.imp.execution.action.GenericExecutionAction;
 
 import java.util.function.Consumer;
 

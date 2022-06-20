@@ -1,6 +1,8 @@
-package de.hypercdn.commons.imp.execution.action;
+package de.hypercdn.commons.imp.execution.action.internal;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
+import de.hypercdn.commons.api.execution.action.ExecutionBuffer;
+import de.hypercdn.commons.imp.execution.action.GenericExecutionBuffer;
 import de.hypercdn.commons.imp.execution.misc.exception.ExecutionException;
 
 import java.util.Objects;
@@ -17,10 +19,13 @@ import java.util.function.Supplier;
  * @param <OUT>    type
  * @param <MAPPED> type
  */
-public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction<IN, MAPPED>{
+public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction.Internal<IN, MAPPED>{
 
 	private final ExecutionAction<IN, OUT> originalAction;
 	private final Function<? super OUT, ? extends MAPPED> mapping;
+
+	// internal
+	private final ExecutionBuffer<IN, MAPPED> executionBuffer = new GenericExecutionBuffer<>();
 
 	public MapExecutionAction(ExecutionAction<IN, OUT> originalAction, Function<? super OUT, ? extends MAPPED> mapping){
 		Objects.requireNonNull(originalAction);
@@ -77,18 +82,40 @@ public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction<IN, 
 
 	@Override
 	public void queue(IN input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer){
+
+		Consumer<MAPPED> successCallback = out -> {
+			if(successConsumer != null){
+				successConsumer.accept(out);
+			}
+		};
+
+		// return buffer content if present and match
+		if(input == executionBuffer.getInput() && executionBuffer.getTimestamp() != null){
+			successCallback.accept(executionBuffer.getOutput());
+			return;
+		}
+
 		originalAction.queue(result -> {
 			var applied = mapping.apply(result);
-			if(successConsumer != null){
-				successConsumer.accept(applied);
-			}
+			// write to buffer and return
+			((ExecutionBuffer.Internal<IN, MAPPED>) executionBuffer).setData(input, applied);
+			successCallback.accept(applied);
 		});
 	}
 
 	@Override
 	public MAPPED execute(IN input) throws ExecutionException{
 		try{
-			return mapping.apply(originalAction.execute());
+			// return buffer content if present and match
+			if(input == executionBuffer.getInput() && executionBuffer.getTimestamp() != null){
+				return executionBuffer.getOutput();
+			}
+			// execute
+			var first = originalAction.execute();
+			var result = mapping.apply(first);
+			// write to buffer and return
+			((ExecutionBuffer.Internal<IN, MAPPED>) executionBuffer).setData(input, result);
+			return result;
 		}
 		catch(Throwable t){
 			if(t instanceof Error || t instanceof ExecutionException){
@@ -96,6 +123,11 @@ public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction<IN, 
 			}
 			throw new ExecutionException(t);
 		}
+	}
+
+	@Override
+	public ExecutionBuffer<IN, MAPPED> resultBuffer(){
+		return executionBuffer;
 	}
 
 }
