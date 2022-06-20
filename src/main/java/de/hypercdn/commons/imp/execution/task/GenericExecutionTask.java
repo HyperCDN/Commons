@@ -2,7 +2,7 @@ package de.hypercdn.commons.imp.execution.task;
 
 import de.hypercdn.commons.api.execution.task.ExecutionStage;
 import de.hypercdn.commons.api.execution.task.ExecutionTask;
-import de.hypercdn.commons.imp.execution.action.RunnableExecutionAction;
+import de.hypercdn.commons.imp.execution.action.helper.RunnableExecutionAction;
 
 import java.util.List;
 

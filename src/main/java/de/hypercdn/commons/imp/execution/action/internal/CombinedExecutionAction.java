@@ -1,8 +1,11 @@
-package de.hypercdn.commons.imp.execution.action;
+package de.hypercdn.commons.imp.execution.action.internal;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
+import de.hypercdn.commons.api.execution.action.ExecutionBuffer;
+import de.hypercdn.commons.imp.execution.action.GenericExecutionBuffer;
 import de.hypercdn.commons.imp.execution.misc.exception.ExecutionException;
 import de.hypercdn.commons.imp.execution.misc.exception.FriendlyExecutionException;
+import de.hypercdn.commons.imp.tuples.Pair;
 import de.hypercdn.commons.util.LockUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +24,7 @@ import java.util.function.*;
  * @param <OUT2>   type
  * @param <MAPPED> type
  */
-public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAction<Void, MAPPED>{
+public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAction.Internal<Void, MAPPED>{
 
 	private final ExecutionAction<?, OUT1> executionAction1;
 	private final ExecutionAction<?, OUT2> executionAction2;
@@ -29,6 +32,9 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private volatile boolean failed = false;
 	private volatile long lastExecutionDuration = -1L;
+
+	// internal
+	private final ExecutionBuffer<Pair<Object, Object>, MAPPED> executionBuffer = new GenericExecutionBuffer<>();
 
 	public CombinedExecutionAction(ExecutionAction<?, OUT1> executionAction1, ExecutionAction<?, OUT2> executionAction2, BiFunction<? super OUT1, ? super OUT2, ? extends MAPPED> accumulator){
 		this.executionAction1 = executionAction1;
@@ -122,6 +128,10 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 			lastExecutionDuration = (System.nanoTime() - startTime);
 			logger.trace("Finished execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 
+			// write to buffer and return
+			var aInput = ((ExecutionAction.Internal<?, ?>) executionAction1).resultBuffer().getInput();
+			var bInput = ((ExecutionAction.Internal<?, ?>) executionAction2).resultBuffer().getInput();
+			((ExecutionBuffer.Internal<Pair<Object, Object>, MAPPED>) executionBuffer).setData(new Pair<>(aInput, bInput), mapped);
 			if(successConsumer != null){
 				successConsumer.accept(mapped);
 			}
@@ -136,6 +146,18 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 				failureCallback.accept(t);
 			}
 		};
+
+		// return buffer content if present and match
+		var aInput = ((ExecutionAction.Internal<?, ?>) executionAction1).resultBuffer().getInput();
+		var bInput = ((ExecutionAction.Internal<?, ?>) executionAction2).resultBuffer().getInput();
+		if(executionBuffer.getTimestamp() != null
+			&& executionBuffer.getInput() != null
+			&& executionBuffer.getInput().getValue1() == aInput
+			&& executionBuffer.getInput().getValue2() == bInput
+		){
+			successMappedCallback.accept(executionBuffer.getOutput());
+			return;
+		}
 
 		try{
 			executionAction1.queue((result) -> LockUtil.executeLocked(lock, () -> {
@@ -173,12 +195,28 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 		logger.trace("Started execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 		try{
+			// return buffer content if present and match
+			var aInput = ((ExecutionAction.Internal<?, ?>) executionAction1).resultBuffer().getInput();
+			var bInput = ((ExecutionAction.Internal<?, ?>) executionAction2).resultBuffer().getInput();
+			if(executionBuffer.getTimestamp() != null
+				&& executionBuffer.getInput() != null
+				&& executionBuffer.getInput().getValue1() == aInput
+				&& executionBuffer.getInput().getValue2() == bInput
+			){
+				return executionBuffer.getOutput();
+			}
+			// perform check
 			if(!getCheck().getAsBoolean()){
 				throw new FriendlyExecutionException("Execution aborted by pre execution check");
 			}
+			// execute processing
 			var a = executionAction1.execute();
 			var b = executionAction2.execute();
 			var result = accumulator.apply(a, b);
+			// write to buffer and return
+			aInput = ((ExecutionAction.Internal<?, ?>) executionAction1).resultBuffer().getInput();
+			bInput = ((ExecutionAction.Internal<?, ?>) executionAction2).resultBuffer().getInput();
+			((ExecutionBuffer.Internal<Pair<Object, Object>, MAPPED>) executionBuffer).setData(new Pair<>(aInput, bInput), result);
 			return result;
 		}
 		catch(Throwable t){
@@ -191,6 +229,11 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 			lastExecutionDuration = (System.nanoTime() - startTime);
 			logger.trace("Finished execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 		}
+	}
+
+	@Override
+	public ExecutionBuffer<Void, MAPPED> resultBuffer(){
+		return null;
 	}
 
 }

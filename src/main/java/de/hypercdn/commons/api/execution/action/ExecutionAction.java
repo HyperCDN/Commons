@@ -1,9 +1,9 @@
 package de.hypercdn.commons.api.execution.action;
 
-import de.hypercdn.commons.imp.execution.action.ChainedExecutionAction;
-import de.hypercdn.commons.imp.execution.action.CombinedExecutionAction;
 import de.hypercdn.commons.imp.execution.action.GenericExecutionAction;
-import de.hypercdn.commons.imp.execution.action.MapExecutionAction;
+import de.hypercdn.commons.imp.execution.action.internal.ChainedExecutionAction;
+import de.hypercdn.commons.imp.execution.action.internal.CombinedExecutionAction;
+import de.hypercdn.commons.imp.execution.action.internal.MapExecutionAction;
 import de.hypercdn.commons.imp.execution.misc.exception.ExecutionException;
 
 import java.util.*;
@@ -410,6 +410,12 @@ public interface ExecutionAction<IN, OUT>{
 			next.run();
 			return null;
 		});
+	}
+
+	interface Internal<IN, OUT> extends ExecutionAction<IN, OUT>{
+
+		ExecutionBuffer<IN, OUT> resultBuffer();
+
 	}
 
 }

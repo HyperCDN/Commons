@@ -1,6 +1,6 @@
 package de.hypercdn.commons.api.execution.task;
 
-import de.hypercdn.commons.imp.execution.action.RunnableExecutionAction;
+import de.hypercdn.commons.imp.execution.action.helper.RunnableExecutionAction;
 
 import java.util.List;
 

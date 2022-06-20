@@ -1,6 +1,7 @@
 package de.hypercdn.commons.imp.execution.action;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
+import de.hypercdn.commons.api.execution.action.ExecutionBuffer;
 import de.hypercdn.commons.imp.execution.misc.exception.ExecutionException;
 import de.hypercdn.commons.imp.execution.misc.exception.FriendlyExecutionException;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import java.util.function.Supplier;
  * @param <IN>  type
  * @param <OUT> type
  */
-public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>{
+public class GenericExecutionAction<IN, OUT> implements ExecutionAction.Internal<IN, OUT>{
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private Executor executor = DEFAULT_EXECUTOR;
@@ -27,6 +28,9 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 	private Function<IN, OUT> actionFunction = (unused) -> null;
 	private BooleanSupplier check = () -> true;
 	private volatile long lastExecutionDuration = -1L;
+
+	// internal
+	private final ExecutionBuffer<IN, OUT> executionBuffer = new GenericExecutionBuffer<>();
 
 	public GenericExecutionAction(){}
 
@@ -115,13 +119,23 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 			}
 		};
 
+		// return buffer content if present and match
+		if(input == executionBuffer.getInput() && executionBuffer.getTimestamp() != null){
+			successCallback.accept(executionBuffer.getOutput());
+			return;
+		}
+
 		try{
 			executor.execute(() -> {
 				try{
+					// perform check
 					if(!getCheck().getAsBoolean()){
 						throw new FriendlyExecutionException("Execution aborted by pre execution check");
 					}
+					// execute processing
 					var result = actionFunction.apply(input);
+					// write to buffer and return
+					((ExecutionBuffer.Internal<IN, OUT>) executionBuffer).setData(input, result);
 					successCallback.accept(result);
 				}
 				catch(Throwable t){
@@ -139,10 +153,18 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 		logger.trace("Started execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 		try{
+			// return buffer content if present and match
+			if(input == executionBuffer.getInput() && executionBuffer.getTimestamp() != null){
+				return executionBuffer.getOutput();
+			}
+			// perform check
 			if(!getCheck().getAsBoolean()){
 				throw new FriendlyExecutionException("Execution aborted by pre execution check");
 			}
+			// execute processing
 			var result = actionFunction.apply(input);
+			// write to buffer and return
+			((ExecutionBuffer.Internal<IN, OUT>) executionBuffer).setData(input, result);
 			return result;
 		}
 		catch(Throwable t){
@@ -155,6 +177,11 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction<IN, OUT>
 			lastExecutionDuration = (System.nanoTime() - startTime);
 			logger.trace("Finished execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 		}
+	}
+
+	@Override
+	public ExecutionBuffer<IN, OUT> resultBuffer(){
+		return executionBuffer;
 	}
 
 }
