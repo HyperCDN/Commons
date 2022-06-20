@@ -1,7 +1,8 @@
 package de.hypercdn.commons.imp.execution.action;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
-import de.hypercdn.commons.imp.execution.misc.ExecutionException;
+import de.hypercdn.commons.imp.execution.misc.exception.ExecutionException;
+import de.hypercdn.commons.imp.execution.misc.exception.FriendlyExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,12 +92,15 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 		logger.trace("Initializing execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 
-		Consumer<Throwable> failureCallback = (throwable) -> {
+		Consumer<Throwable> failureCallback = throwable -> {
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			logger.trace("Failed execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-
-			if(exceptionConsumer != null){
-				exceptionConsumer.accept(throwable instanceof ExecutionException ? throwable : new ExecutionException(throwable));
+			if(throwable instanceof FriendlyExecutionException) {
+				logger.trace("Stopped execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+			} else {
+				logger.trace("Failed execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
+				if(exceptionConsumer != null){
+					exceptionConsumer.accept(throwable instanceof ExecutionException ? throwable : new ExecutionException(throwable));
+				}
 			}
 		};
 
@@ -115,15 +119,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 			}, failureCallback);
 		}
 		catch(Throwable t){
-			logger.trace("Failed to initialize execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-			lastExecutionDuration = (System.nanoTime() - startTime);
-
-			if(t instanceof Error){
-				throw t;
-			}
-			if(exceptionConsumer != null){
-				exceptionConsumer.accept(t instanceof ExecutionException ? t : new ExecutionException(t));
-			}
+			failureCallback.accept(t);
 		}
 	}
 
@@ -133,7 +129,7 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction<I
 		var startTime = System.nanoTime();
 		try{
 			if(!getCheck().getAsBoolean()){
-				return null;
+				throw new FriendlyExecutionException("Execution aborted by pre execution check");
 			}
 			var first = firstExecutionAction.execute(input);
 			var result = secondExecutionAction.execute(first);

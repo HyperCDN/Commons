@@ -1,7 +1,7 @@
 package de.hypercdn.commons.imp.execution.action;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
-import de.hypercdn.commons.imp.execution.misc.ExecutionException;
+import de.hypercdn.commons.imp.execution.misc.exception.ExecutionException;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -91,7 +91,7 @@ public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction<IN, 
 			return mapping.apply(originalAction.execute());
 		}
 		catch(Throwable t){
-			if(t instanceof Error){
+			if(t instanceof Error || t instanceof ExecutionException){
 				throw t;
 			}
 			throw new ExecutionException(t);
