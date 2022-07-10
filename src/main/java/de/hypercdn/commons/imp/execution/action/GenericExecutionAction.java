@@ -2,11 +2,15 @@ package de.hypercdn.commons.imp.execution.action;
 
 import de.hypercdn.commons.api.execution.action.ExecutionAction;
 import de.hypercdn.commons.api.execution.action.ExecutionBuffer;
+import de.hypercdn.commons.api.execution.interceptor.ExecutionInterceptor;
+import de.hypercdn.commons.imp.execution.interceptor.AsyncExecutionChain;
+import de.hypercdn.commons.imp.execution.interceptor.SyncExecutionChain;
 import de.hypercdn.commons.imp.execution.misc.exception.ExecutionException;
 import de.hypercdn.commons.imp.execution.misc.exception.FriendlyExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
@@ -96,14 +100,58 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction.Internal
 
 	@Override
 	public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer){
+		executor.execute(() -> {
+			if(Internal.interceptors.isEmpty()){
+				queueInternal(input, successConsumer, exceptionConsumer);
+			}
+			var internal = (Internal<IN, OUT>) this;
+			var chain = new AsyncExecutionChain<>(internal);
+			try{
+				for(var interceptor : new ArrayList<>(Internal.interceptors)){
+					var output = interceptor.intercept(chain);
+					((ExecutionInterceptor.Chain.Internal) chain).setLast(chain.lastIn(), output);
+				}
+				if(successConsumer != null){
+					successConsumer.accept((OUT) chain.lastOut());
+				}
+			}
+			catch(Throwable t){
+				if(t instanceof Error){
+					throw t;
+				}
+				if(exceptionConsumer != null){
+					exceptionConsumer.accept(t instanceof ExecutionException ? t : new ExecutionException(t));
+				}
+			}
+
+		});
+	}
+
+	@Override
+	public OUT execute(IN input) throws ExecutionException{
+		if(Internal.interceptors.isEmpty()){
+			return executeInternal(input);
+		}
+		var internal = (Internal<IN, OUT>) this;
+		var chain = new SyncExecutionChain<>(internal);
+		for(var interceptor : new ArrayList<>(Internal.interceptors)){
+			var output = interceptor.intercept(chain);
+			((ExecutionInterceptor.Chain.Internal) chain).setLast(chain.lastIn(), output);
+		}
+		return (OUT) chain.lastOut();
+	}
+
+	@Override
+	public void queueInternal(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer){
 		logger.trace("Initializing execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 
 		Consumer<Throwable> failureCallback = throwable -> {
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			if(throwable instanceof FriendlyExecutionException) {
+			if(throwable instanceof FriendlyExecutionException){
 				logger.trace("Stopped execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
-			} else {
+			}
+			else{
 				logger.trace("Failed execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 				if(exceptionConsumer != null){
 					exceptionConsumer.accept(throwable instanceof ExecutionException ? throwable : new ExecutionException(throwable));
@@ -149,7 +197,7 @@ public class GenericExecutionAction<IN, OUT> implements ExecutionAction.Internal
 	}
 
 	@Override
-	public OUT execute(IN input){
+	public OUT executeInternal(IN input){
 		logger.trace("Started execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 		try{

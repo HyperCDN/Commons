@@ -81,6 +81,16 @@ public class MapExecutionAction<IN, OUT, MAPPED> implements ExecutionAction.Inte
 	}
 
 	@Override
+	public void queueInternal(IN input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer){
+
+	}
+
+	@Override
+	public MAPPED executeInternal(IN input) throws ExecutionException{
+		return null;
+	}
+
+	@Override
 	public void queue(IN input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer){
 
 		Consumer<MAPPED> successCallback = out -> {

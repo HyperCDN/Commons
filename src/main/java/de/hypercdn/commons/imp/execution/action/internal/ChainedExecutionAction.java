@@ -93,13 +93,23 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction.I
 	}
 
 	@Override
+	public ExecutionBuffer<IN, OUT> resultBuffer(){
+		return executionBuffer;
+	}
+
+	@Override
+	public void queueInternal(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer){
+
+	}
+
+	@Override
 	public void queue(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer){
 		logger.trace("Initializing execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
 
 		Consumer<Throwable> failureCallback = throwable -> {
 			lastExecutionDuration = (System.nanoTime() - startTime);
-			if(throwable instanceof FriendlyExecutionException) {
+			if(throwable instanceof FriendlyExecutionException){
 				logger.trace("Stopped execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
 			} else {
 				logger.trace("Failed execution of " + getClass().getSimpleName() + "#" + hashCode() + " after " + lastExecutionDuration() + " ms");
@@ -169,8 +179,8 @@ public class ChainedExecutionAction<IN, TRANS, OUT> implements ExecutionAction.I
 	}
 
 	@Override
-	public ExecutionBuffer<IN, OUT> resultBuffer(){
-		return executionBuffer;
+	public OUT executeInternal(IN input) throws ExecutionException{
+		return null;
 	}
 
 }

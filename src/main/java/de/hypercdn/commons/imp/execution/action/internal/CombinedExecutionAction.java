@@ -97,6 +97,16 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 	}
 
 	@Override
+	public ExecutionBuffer<Void, MAPPED> resultBuffer(){
+		return null;
+	}
+
+	@Override
+	public void queueInternal(Void input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer){
+
+	}
+
+	@Override
 	public void queue(Void input, Consumer<? super MAPPED> successConsumer, Consumer<? super Throwable> exceptionConsumer){
 		logger.trace("Initializing execution of " + getClass().getSimpleName() + "#" + hashCode());
 		var startTime = System.nanoTime();
@@ -232,7 +242,7 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 	}
 
 	@Override
-	public ExecutionBuffer<Void, MAPPED> resultBuffer(){
+	public MAPPED executeInternal(Void input) throws ExecutionException{
 		return null;
 	}
 

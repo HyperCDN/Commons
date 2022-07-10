@@ -1,5 +1,6 @@
 package de.hypercdn.commons.api.execution.action;
 
+import de.hypercdn.commons.api.execution.interceptor.ExecutionInterceptor;
 import de.hypercdn.commons.imp.execution.action.GenericExecutionAction;
 import de.hypercdn.commons.imp.execution.action.internal.ChainedExecutionAction;
 import de.hypercdn.commons.imp.execution.action.internal.CombinedExecutionAction;
@@ -29,7 +30,8 @@ public interface ExecutionAction<IN, OUT>{
 	/**
 	 * Executor used by default for async execution
 	 */
-	Executor DEFAULT_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	//Executor DEFAULT_EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	Executor DEFAULT_EXECUTOR = Executors.newCachedThreadPool();
 
 	/**
 	 * Returns an execution action which combines multiple execution actions
@@ -415,6 +417,22 @@ public interface ExecutionAction<IN, OUT>{
 	interface Internal<IN, OUT> extends ExecutionAction<IN, OUT>{
 
 		ExecutionBuffer<IN, OUT> resultBuffer();
+
+		List<ExecutionInterceptor> interceptors = new ArrayList<>();
+
+		static void addInterceptors(ExecutionInterceptor... interceptors){
+			Internal.interceptors.addAll(Arrays.asList(interceptors));
+		}
+
+		static void removeInterceptor(ExecutionInterceptor... interceptors){
+			for(var interceptor : interceptors){
+				Internal.interceptors.remove(interceptor);
+			}
+		}
+
+		void queueInternal(IN input, Consumer<? super OUT> successConsumer, Consumer<? super Throwable> exceptionConsumer);
+
+		OUT executeInternal(IN input) throws ExecutionException;
 
 	}
 
