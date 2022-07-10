@@ -157,14 +157,14 @@ public interface Structure{
 			resultTmp.add(new Pair<>(result, struct));
 		}
 		if(!resultTmp.isEmpty() && (field.getIdentifier() == null || field.getIdentifier().toString().isBlank())){
-			var result = resultTmp.get(0).getValue1();
+			var result = resultTmp.get(0).a();
 			if(override){
 				result.setLevel(Level.INFO);
 			}
 			return result;
 		}
 		var result = new StatusLog("Field \"" + field.getIdentifier() + "\"")
-			.addChildren(resultTmp.stream().map(Pair::getValue1).toList());
+			.addChildren(resultTmp.stream().map(Pair::a).toList());
 		if(override){
 			result.setLevel(Level.INFO);
 		}

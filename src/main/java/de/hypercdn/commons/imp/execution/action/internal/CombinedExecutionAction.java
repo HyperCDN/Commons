@@ -152,8 +152,8 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 		var bInput = ((ExecutionAction.Internal<?, ?>) executionAction2).resultBuffer().getInput();
 		if(executionBuffer.getTimestamp() != null
 			&& executionBuffer.getInput() != null
-			&& executionBuffer.getInput().getValue1() == aInput
-			&& executionBuffer.getInput().getValue2() == bInput
+			&& executionBuffer.getInput().a() == aInput
+			&& executionBuffer.getInput().b() == bInput
 		){
 			successMappedCallback.accept(executionBuffer.getOutput());
 			return;
@@ -200,8 +200,8 @@ public class CombinedExecutionAction<OUT1, OUT2, MAPPED> implements ExecutionAct
 			var bInput = ((ExecutionAction.Internal<?, ?>) executionAction2).resultBuffer().getInput();
 			if(executionBuffer.getTimestamp() != null
 				&& executionBuffer.getInput() != null
-				&& executionBuffer.getInput().getValue1() == aInput
-				&& executionBuffer.getInput().getValue2() == bInput
+				&& executionBuffer.getInput().a() == aInput
+				&& executionBuffer.getInput().b() == bInput
 			){
 				return executionBuffer.getOutput();
 			}
