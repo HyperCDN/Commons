@@ -5,9 +5,7 @@
 [![Generic badge](https://img.shields.io/nexus/r/de.hypercdn.commons/Commons?color=white&label=Latest%20Version&nexusVersion=3&server=https%3A%2F%2Fcd.voigt.app%2F)]()
 
 ## Installation
-Grab the latest version from our [Nexus-Proxy](https://nexus.hypercdn.de/) using Gradle or Maven.  
-⚠️Be aware that this instance acts as proxy for load distribution.  
-⚠️Artifacts might not be listed till requested and the initial load might be very slow.
+Grab the latest version from our [Nexus-Proxy](https://nexus.hypercdn.de/) using Gradle or Maven.
 
 ### Gradle
 
